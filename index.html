@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tea Programming Language IDE (Chaos Edition - Frontend Only, Local Database)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Define custom CSS variables for fonts */
+        :root {
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+        }
+
+        /* Theme Variables */
+        /* Each theme defines a set of color variables */
+        .theme-matcha {
+            --bg-primary: #2A3F35; /* Main background for editor */
+            --bg-secondary: #1E2D24; /* Background for sidebars, top bar, terminal */
+            --bg-tertiary: #3E554A; /* Hover/active background for elements */
+            --text-primary: #E0E0E0; /* Main text color */
+            --text-secondary: #A0A0A0; /* Secondary text color (e.g., comments, descriptions) */
+            --accent-primary: #6EE7B7; /* Primary accent color (e.g., highlights, active states) */
+            --accent-secondary: #34D399; /* Secondary accent color (e.g., buttons, active tabs) */
+            --border-color: #4A6357; /* Border color */
+            --gradient-start: #2A3F35;
+            --gradient-end: #1E2D24;
+            --shadow-color: rgba(0,0,0,0.3);
+        }
+
+        .theme-earl-grey {
+            --bg-primary: #334155;
+            --bg-secondary: #1E293B;
+            --bg-tertiary: #475569;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --accent-primary: #60A5FA;
+            --accent-secondary: #3B82F6;
+            --border-color: #475569;
+            --gradient-start: #334155;
+            --gradient-end: #1E293B;
+            --shadow-color: rgba(0,0,0,0.3);
+        }
+        
+        .theme-chai {
+            --bg-primary: #4A2E2B;
+            --bg-secondary: #3C2421;
+            --bg-tertiary: #5C3A36;
+            --text-primary: #FDEBD0;
+            --text-secondary: #D5BBA2;
+            --accent-primary: #F59E0B;
+            --accent-secondary: #D97706;
+            --border-color: #6B4642;
+            --gradient-start: #4A2E2B;
+            --gradient-end: #3C2421;
+            --shadow-color: rgba(0,0,0,0.3);
+        }
+
+        .theme-classic {
+            --bg-primary: #282c34;
+            --bg-secondary: #21252b;
+            --bg-tertiary: #3a4049;
+            --text-primary: #abb2bf;
+            --text-secondary: #8e9aab;
+            --accent-primary: #61afef;
+            --accent-secondary: #528bff;
+            --border-color: #3a4049;
+            --gradient-start: #282c34;
+            --gradient-end: #21252b;
+            --shadow-color: rgba(0,0,0,0.3);
+        }
+
+        /* Base body styles, applying theme variables and smooth transitions */
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Specific component styling using theme variables */
+        .top-bar { background-color: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+        .sidebar { background-color: var(--bg-secondary); transition: width 0.3s ease, transform 0.3s ease; } /* Added transform for responsive slide */
+        .editor-bg { background-color: var(--bg-primary); }
+        .terminal-bg { background-color: var(--bg-secondary); }
+        .panel-header { border-bottom: 1px solid var(--border-color); }
+        .file-item.active { background-color: var(--accent-secondary); color: var(--bg-primary); }
+        .file-item:hover { background-color: var(--bg-tertiary); }
+        .tab { 
+            background-color: var(--bg-secondary); 
+            color: var(--text-secondary);
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active { 
+            background-color: var(--bg-primary); 
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--accent-primary); 
+        }
+        .tab:hover { background-color: var(--bg-tertiary); }
+        .btn { 
+            background-color: var(--bg-tertiary); 
+            color: var(--text-primary); 
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease; 
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+        .btn:hover { 
+            background-color: var(--accent-secondary); 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+        .btn-primary { 
+            background-color: var(--accent-primary); 
+            color: var(--bg-secondary); 
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease; 
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+        .btn-primary:hover { 
+            background-color: var(--accent-secondary); 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+        /* Apply monospace font to code-related elements */
+        #code-editor, #terminal-input, #terminal-output, .metadata-input, #command-search, .command-name { font-family: var(--font-mono); }
+        #terminal-prompt { color: var(--accent-primary); }
+        .command-name { color: var(--accent-primary); }
+
+        /* Custom Scrollbar Styles */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        /* Terminal specific styles for collapse/fullscreen */
+        #terminal {
+            height: 33.33%; /* Default 1/3 height */
+            transition: height 0.3s ease;
+            overflow: hidden; /* Hide scrollbar when collapsed */
+        }
+        #terminal.collapsed {
+            height: 40px; /* Height when collapsed (header only) */
+        }
+        #terminal.fullscreen {
+            height: 100%; /* Full height of its parent */
+            flex-grow: 1; /* Take all available space */
+            position: absolute; /* Position absolutely to overlay editor */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 20; /* Above editor */
+            border-top: none; /* Remove top border in fullscreen */
+            border-radius: 0; /* Remove rounded corners in fullscreen */
+        }
+        #terminal.fullscreen #terminal-output {
+            height: calc(100% - 70px); /* Adjust for header and input */
+        }
+        #terminal-output {
+            overflow-y: auto; /* Enable scrollbar for output area */
+        }
+
+        /* Responsive adjustments for sidebars */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                z-index: 10; /* Ensure sidebars are on top when open */
+                width: 280px; /* Slightly wider for mobile */
+                box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            }
+            #left-sidebar {
+                left: 0;
+                transform: translateX(-100%); /* Hidden by default */
+            }
+            #left-sidebar.open {
+                transform: translateX(0); /* Visible when open */
+            }
+            #right-sidebar {
+                right: 0;
+                transform: translateX(100%); /* Hidden by default */
+            }
+            #right-sidebar.open {
+                transform: translateX(0); /* Visible when open */
+            }
+            .main-content-area {
+                width: 100%; /* Main content takes full width */
+            }
+        }
+
+        /* Custom Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 100; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: var(--bg-primary);
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+        .close-button {
+            color: var(--text-secondary);
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--accent-primary);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-input {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 10px; /* Increased padding */
+            border-radius: 6px; /* More rounded */
+            width: 100%;
+            margin-bottom: 15px; /* Increased margin */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); /* Inner shadow */
+        }
+        .modal-error {
+            color: #ef4444; /* Red-500 */
+            margin-top: -10px;
+            margin-bottom: 10px;
+            font-size: 0.875rem; /* text-sm */
+        }
+
+    </style>
+</head>
+<body class="theme-matcha">
+
+    <!-- Main App Container (Always visible, no auth screen) -->
+    <div id="app-container" class="min-h-screen flex flex-col">
+        <!-- Top Bar -->
+        <div class="top-bar p-2 flex items-center justify-between flex-shrink-0 rounded-b-lg shadow-md">
+            <div class="flex items-center space-x-4">
+                <!-- Tea IDE Logo/Icon -->
+                <svg class="w-8 h-8" style="color: var(--accent-primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.25278C12 6.25278 6.75 3 6.75 3C6.75 3 6 6.75 6 10.5C6 16.0208 10.2917 21 12 21C13.7083 21 18 16.0208 18 10.5C18 6.75 17.25 3 17.25 3C17.25 3 12 6.25278 12 6.25278Z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12C12 12 15 10.5 15 8.25C15 6 12 4.5 12 4.5C12 4.5 9 6 9 8.25C9 10.5 12 12 12 12Z"></path></svg>
+                <span class="text-xl font-bold">Tea IDE (Chaos Edition)</span>
+                <div class="flex space-x-2">
+                    <!-- Basic menu buttons (functionality not implemented in this demo) -->
+                    <button class="btn px-3 py-1 rounded-md shadow-sm">File</button>
+                    <button class="btn px-3 py-1 rounded-md shadow-sm">Edit</button>
+                    <!-- Removed: Run Tea Code Button -->
+                    <!-- Theme Switcher Dropdown -->
+                    <select id="theme-switcher" class="btn px-3 py-1 rounded-md shadow-sm cursor-pointer">
+                        <option value="theme-matcha">Matcha</option>
+                        <option value="theme-earl-grey">Earl Grey</option>
+                        <option value="theme-chai">Chai</option>
+                        <option value="theme-classic">Classic Dark</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <!-- User Status -->
+                <span id="user-status" class="text-sm text-secondary">Active Database: guest_chaos_dev</span>
+                <button id="view-databases-btn" class="btn px-3 py-1 rounded-md shadow-sm">Databases</button>
+                <button id="reset-ide-btn" class="btn px-3 py-1 rounded-md shadow-sm">Reset IDE</button>
+                <!-- Export Project Button -->
+                <button id="export-btn" class="btn-primary font-semibold px-4 py-2 rounded-md shadow-lg transform hover:scale-105 transition-transform duration-200">Export All Files</button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex flex-grow overflow-hidden relative lg:static">
+            <!-- Left Sidebar -->
+            <div id="left-sidebar" class="sidebar w-64 p-4 flex flex-col flex-shrink-0 rounded-r-lg lg:static lg:translate-x-0">
+                <h2 class="text-xl font-bold mb-4 panel-header pb-2">File Explorer</h2>
+                <div id="file-explorer" class="flex-grow overflow-y-auto custom-scrollbar pr-2"></div>
+                <div class="flex space-x-2 mt-4">
+                    <button id="new-file-btn" class="btn-primary font-semibold px-3 py-1 rounded-md w-full shadow-sm">New .tpr</button>
+                    <input type="file" id="file-upload" class="hidden" accept=".tpr,.tea-project">
+                    <button id="open-file-btn" class="btn px-3 py-1 rounded-md w-full shadow-sm">Open .tpr</button>
+                </div>
+
+                <!-- Removed Projects Section -->
+            </div>
+
+            <!-- Main Editor and Terminal -->
+            <div class="flex-grow flex flex-col main-content-area">
+                <div class="flex items-center bg-secondary">
+                    <!-- Toggle Left Sidebar Button -->
+                    <button id="toggle-left" class="p-2 btn m-1 rounded-md shadow-sm lg:hidden">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                    </button>
+                    <!-- Tabs Container -->
+                    <div id="tabs-container" class="flex flex-grow border-b overflow-x-auto" style="border-color: var(--border-color);">
+                        <!-- "Command Dictionary" tab will be dynamically added here -->
+                    </div>
+                    <!-- Toggle Right Sidebar Button -->
+                     <button id="toggle-right" class="p-2 btn m-1 rounded-md shadow-sm lg:hidden">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M13 18h7"></path></svg>
+                    </button>
+                </div>
+                <!-- Code Editor Area -->
+                <div id="editor-container" class="flex-grow editor-bg p-1 rounded-b-lg">
+                    <textarea id="code-editor" class="w-full h-full bg-transparent text-primary border-none focus:outline-none resize-none p-4 text-sm leading-relaxed" placeholder="Write your Tea code here..."></textarea>
+                </div>
+                <!-- Command Dictionary Panel (now within main content, toggled by tab) -->
+                <div id="command-dictionary-panel" class="flex-grow editor-bg p-4 flex flex-col rounded-b-lg hidden">
+                    <h3 class="text-lg font-bold mb-3 panel-header pb-2">Command Dictionary</h3>
+                    <input type="text" id="command-search" class="bg-tertiary w-full mb-3 p-2 rounded-md text-sm" placeholder="Search commands...">
+                    <div id="command-list" class="editor-bg p-3 rounded-md flex-grow overflow-y-auto text-sm custom-scrollbar space-y-2"></div>
+                </div>
+                <!-- Terminal Area -->
+                <div id="terminal" class="h-1/3 terminal-bg p-4 flex flex-col border-t rounded-t-lg" style="border-color: var(--border-color);">
+                    <div class="flex items-center justify-between mb-2 panel-header pb-2 cursor-pointer" id="terminal-header-toggle">
+                        <h3 class="text-lg font-bold">Terminal</h3>
+                        <div class="flex space-x-2">
+                            <button id="terminal-fullscreen-btn" class="btn px-2 py-1 rounded-md text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m0 0l-5 5m-4 7v4m0 0h-4m0 0l5-5m11 1v4m0 0h-4m0 0l-5-5"></path></svg>
+                            </button>
+                            <button id="terminal-collapse-btn" class="btn px-2 py-1 rounded-md text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="terminal-content" class="flex-grow flex flex-col">
+                        <div id="terminal-output" class="flex-grow bg-black/20 p-2 rounded-md overflow-y-auto text-sm custom-scrollbar"></div>
+                        <div class="flex mt-2 items-center">
+                            <span id="terminal-prompt" class="mr-2">$</span>
+                            <input type="text" id="terminal-input" class="bg-transparent border-none w-full focus:outline-none text-sm" placeholder="Type commands here (e.g., 'clear', 'help')">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar (AI Assistant Only) -->
+            <div id="right-sidebar" class="sidebar w-80 p-4 flex flex-col flex-shrink-0 rounded-l-lg lg:static lg:translate-x-0">
+                <!-- AI Assistant Panel -->
+                <div class="flex-1 flex flex-col min-h-0">
+                    <h3 class="text-lg font-bold mb-3 panel-header pb-2">AI Assistant</h3>
+                    <div id="ai-output" class="editor-bg p-3 rounded-md flex-grow overflow-y-auto text-sm custom-scrollbar mb-4">
+                        <p class="text-secondary">I'm your AI assistant, TeaCognito! Prepare for insights, wit, and perhaps a sprinkle of existential dread. How may I inject chaos into your coding today?</p>
+                    </div>
+                    <div class="flex flex-col space-y-3 mt-2">
+                        <button id="explain-code-btn" class="btn w-full rounded-md shadow-sm py-2">✨ Explain Code</button>
+                        <button id="refactor-code-btn" class="btn w-full rounded-md shadow-sm py-2">✨ Refactor Code</button>
+                        <button id="train-ai-btn" class="btn w-full rounded-md shadow-sm py-2">✨ Train AI (Simulated)</button>
+                        <input type="text" id="ai-input" class="bg-tertiary w-full p-2 rounded-md text-sm mt-3" placeholder="Ask for help or 'Generate code for...' ">
+                        <button id="generate-code-btn" class="btn-primary w-full rounded-md shadow-sm py-2">✨ Generate Code</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal for Prompts/Alerts -->
+    <div id="custom-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 id="modal-title" class="text-xl font-bold mb-4"></h3>
+            <p id="modal-message" class="mb-4"></p>
+            <input type="text" id="modal-input" class="modal-input hidden" placeholder="Enter value...">
+            <p id="modal-error-message" class="modal-error hidden"></p>
+            <div id="modal-buttons" class="flex justify-end space-x-2">
+                <button id="modal-cancel-btn" class="btn px-4 py-2 rounded-md hidden">Cancel</button>
+                <button id="modal-ok-btn" class="btn-primary px-4 py-2 rounded-md">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- Simulated Database Key (User ID) ---
+        // This key determines which section of the local database is currently active.
+        let currentUserId = localStorage.getItem('active_simulated_db_key') || 'guest_chaos_dev';
+        document.getElementById('user-status').textContent = `Active Database: ${currentUserId}`;
+
+        // --- DOM ELEMENTS ---
+        // Cache DOM elements for efficient access
+        const dom = {
+            body: document.body,
+            leftSidebar: document.getElementById('left-sidebar'),
+            rightSidebar: document.getElementById('right-sidebar'),
+            toggleLeft: document.getElementById('toggle-left'),
+            toggleRight: document.getElementById('toggle-right'),
+            fileExplorer: document.getElementById('file-explorer'),
+            codeEditor: document.getElementById('code-editor'),
+            commandDictionaryPanel: document.getElementById('command-dictionary-panel'), // New panel for commands
+            terminal: document.getElementById('terminal'), // Main terminal container
+            terminalHeaderToggle: document.getElementById('terminal-header-toggle'), // Clickable header
+            terminalContent: document.getElementById('terminal-content'), // Content to hide/show
+            terminalOutput: document.getElementById('terminal-output'),
+            terminalInput: document.getElementById('terminal-input'),
+            terminalFullscreenBtn: document.getElementById('terminal-fullscreen-btn'),
+            terminalCollapseBtn: document.getElementById('terminal-collapse-btn'),
+            commandList: document.getElementById('command-list'),
+            commandSearch: document.getElementById('command-search'),
+            newFileBtn: document.getElementById('new-file-btn'),
+            openFileBtn: document.getElementById('open-file-btn'),
+            fileUpload: document.getElementById('file-upload'),
+            tabsContainer: document.getElementById('tabs-container'),
+            themeSwitcher: document.getElementById('theme-switcher'),
+            aiOutput: document.getElementById('ai-output'),
+            aiInput: document.getElementById('ai-input'),
+            exportBtn: document.getElementById('export-btn'),
+            // LLM buttons
+            explainCodeBtn: document.getElementById('explain-code-btn'),
+            refactorCodeBtn: document.getElementById('refactor-code-btn'),
+            generateCodeBtn: document.getElementById('generate-code-btn'),
+            trainAiBtn: document.getElementById('train-ai-btn'),
+            // New Database Management UI
+            viewDatabasesBtn: document.getElementById('view-databases-btn'),
+            resetIdeBtn: document.getElementById('reset-ide-btn') // Reset button
+        };
+
+        // --- Debugging: Verify DOM elements are found ---
+        console.log('--- DOM Element Initialization Check ---');
+        for (const key in dom) {
+            if (dom[key] === null) {
+                console.error(`ERROR: DOM element '${key}' not found! Please check your HTML IDs. The digital spirits are confused.`);
+            } else {
+                console.log(`SUCCESS: DOM element '${key}' found.`);
+            }
+        }
+        console.log('--------------------------------------');
+
+        // --- Custom Modal Implementation (replacing prompt/alert) ---
+        const customModal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalInput = document.getElementById('modal-input');
+        const modalOkBtn = document.getElementById('modal-ok-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const closeButton = customModal.querySelector('.close-button');
+        const modalErrorMessage = document.getElementById('modal-error-message');
+
+        let modalResolve;
+        let modalReject;
+
+        function showModal(title, message, inputConfig = { type: 'none', placeholder: '' }) {
+            return new Promise((resolve, reject) => {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                modalInput.value = ''; // Clear previous input
+                clearModalError();
+
+                if (inputConfig.type !== 'none') {
+                    modalInput.classList.remove('hidden');
+                    modalInput.type = inputConfig.type;
+                    modalInput.placeholder = inputConfig.placeholder;
+                    modalInput.focus();
+                    modalCancelBtn.classList.remove('hidden');
+                } else {
+                    modalInput.classList.add('hidden');
+                    modalCancelBtn.classList.add('hidden');
+                }
+
+                customModal.style.display = 'flex'; // Show modal
+
+                modalResolve = resolve;
+                modalReject = reject;
+            });
+        }
+
+        function closeModal() {
+            customModal.style.display = 'none';
+            modalInput.classList.add('hidden'); // Ensure input is hidden on close
+            clearModalError();
+        }
+
+        function displayModalError(message) {
+            modalErrorMessage.textContent = message;
+            modalErrorMessage.classList.remove('hidden');
+        }
+
+        function clearModalError() {
+            modalErrorMessage.classList.add('hidden');
+            modalErrorMessage.textContent = '';
+        }
+
+        modalOkBtn.onclick = () => {
+            if (!modalInput.classList.contains('hidden') && modalInput.value.trim() === '') {
+                displayModalError('Input cannot be empty. The universe demands input!');
+                return;
+            }
+            closeModal();
+            if (modalInput.classList.contains('hidden')) {
+                modalResolve(true); // For alert-like behavior
+            } else {
+                modalResolve(modalInput.value); // For prompt-like behavior
+            }
+        };
+
+        modalCancelBtn.onclick = () => {
+            closeModal();
+            modalReject(new Error('Modal cancelled. The void disapproves of indecision.')); // For prompt-like behavior
+        };
+
+        closeButton.onclick = () => {
+            closeModal();
+            modalReject(new Error('Modal closed by outside click. Did you just... vanish?')); // Treat closing as cancellation
+        };
+
+        window.onclick = (event) => {
+            if (event.target === customModal) {
+                closeModal();
+                modalReject(new Error('Modal closed by outside click. The matrix shifted.'));
+            }
+        };
+        // End Custom Modal
+
+        // --- Simulated Local Database Functions ---
+
+        /**
+         * Retrieves the entire simulated database from localStorage.
+         * @returns {object} The parsed database object.
+         */
+        function getSimulatedDatabase() {
+            try {
+                return JSON.parse(localStorage.getItem('simulated_tea_db') || '{}');
+            } catch (e) {
+                console.error("Error parsing simulated_tea_db from localStorage:", e);
+                return {};
+            }
+        }
+
+        /**
+         * Saves the entire simulated database object to localStorage.
+         * @param {object} db - The database object to save.
+         */
+        function setSimulatedDatabase(db) {
+            localStorage.setItem('simulated_tea_db', JSON.stringify(db));
+        }
+
+        /**
+         * Saves a file's content to the simulated local database under the current user's key.
+         * @param {string} fileName - The name of the file to save.
+         * @param {string} content - The content of the file.
+         */
+        async function simulatedSaveFile(fileName, content) {
+            const db = getSimulatedDatabase();
+            db[currentUserId] = db[currentUserId] || {}; // Ensure user's section exists
+            db[currentUserId][fileName] = content;
+            setSimulatedDatabase(db);
+            logToTerminal(`LOCAL DB: Saved '${fileName}' for '${currentUserId}' successfully. The bits are now safe!`, 'success');
+        }
+
+        /**
+         * Loads a file's content from the simulated local database for the current user.
+         * @param {string} fileName - The name of the file to load.
+         * @returns {string | null} The loaded content, or null if not found.
+         */
+        function simulatedLoadFile(fileName) {
+            const db = getSimulatedDatabase();
+            const userData = db[currentUserId] || {};
+            if (userData.hasOwnProperty(fileName)) {
+                logToTerminal(`LOCAL DB: Loaded '${fileName}' for '${currentUserId}'. Behold, the retrieved wisdom!`, 'success');
+                return userData[fileName];
+            }
+            logToTerminal(`LOCAL DB: File '${fileName}' not found for '${currentUserId}'. It's lost in the digital ether!`, 'info');
+            return null;
+        }
+
+        /**
+         * Deletes a file from the simulated local database for the current user.
+         * @param {string} fileName - The name of the file to delete.
+         */
+        function simulatedDeleteFile(fileName) {
+            const db = getSimulatedDatabase();
+            if (db[currentUserId] && db[currentUserId].hasOwnProperty(fileName)) {
+                delete db[currentUserId][fileName];
+                setSimulatedDatabase(db);
+                logToTerminal(`LOCAL DB: Deleted '${fileName}' for '${currentUserId}'. Poof! Gone forever (locally).`, 'success');
+            } else {
+                logToTerminal(`LOCAL DB: File '${fileName}' not found for '${currentUserId}' to delete. It was never there!`, 'info');
+            }
+        }
+
+        /**
+         * Lists all file names stored for the current user in the simulated local database.
+         * @returns {string[]} An array of file names.
+         */
+        function simulatedListFiles() {
+            const db = getSimulatedDatabase();
+            const userData = db[currentUserId] || {};
+            const files = Object.keys(userData);
+            logToTerminal(`LOCAL DB: Files for '${currentUserId}': ${files.join(', ') || 'None'}. A scroll of local secrets!`, 'info');
+            return files;
+        }
+
+        /**
+         * Sets the active database key (user ID) and reloads the IDE state to reflect files
+         * associated with the new key.
+         * @param {string} newKey - The new database key (user ID) to activate.
+         */
+        async function setActiveDatabaseKey(newKey) {
+            // Ensure newKey is explicitly converted to a string to prevent TypeError if it's not already.
+            // Use an empty string if newKey is null or undefined, then trim.
+            const keyAsString = String(newKey || '').trim(); 
+
+            if (keyAsString === '') {
+                logToTerminal("Invalid database key. The key must not be empty!", "error");
+                return;
+            }
+            currentUserId = keyAsString;
+            localStorage.setItem('active_simulated_db_key', currentUserId);
+            document.getElementById('user-status').textContent = `Active Database: ${currentUserId}`;
+            logToTerminal(`Switched active database to: '${currentUserId}'. New digital identity acquired!`, 'success');
+            
+            // Reload files for the new user
+            state.files = {};
+            state.openTabs = [];
+            state.activeFile = null;
+            const userFiles = getSimulatedDatabase()[currentUserId] || {};
+            state.files = { ...userFiles }; // Load all files for this user
+            const fileNames = Object.keys(state.files); // Get file names for the *new* user
+            if (fileNames.length > 0) {
+                // Open the first file found for this user, or the one that was active previously if it exists
+                const previouslyActiveFile = localStorage.getItem(`active_file_${currentUserId}`);
+                if (previouslyActiveFile && state.files.hasOwnProperty(previouslyActiveFile)) {
+                    openFile(previouslyActiveFile);
+                } else {
+                    openFile(fileNames[0]); // Use fileNames (for the current user)
+                }
+            } else {
+                createNewFile(); // Create a default file if the user's section is empty
+            }
+            renderFileExplorer();
+            renderTabs();
+        }
+
+        /**
+         * Displays all available database keys (user IDs) and allows the user to switch
+         * to an existing one or create a new one.
+         */
+        async function viewAllDatabases() {
+            const db = getSimulatedDatabase();
+            const allKeys = Object.keys(db);
+            let message = `Available Database Keys: ${allKeys.join(', ') || 'None'}.`;
+            if (allKeys.length > 0) {
+                message += `\n\nEnter a key to switch to it, or enter a new key to create/switch to it.`;
+            } else {
+                message += `\n\nEnter a new key to create your first database section!`;
+            }
+
+            try {
+                const newKey = await showModal('View/Switch Databases', message, { type: 'text', placeholder: 'Enter database key' });
+                if (newKey) {
+                    setActiveDatabaseKey(newKey);
+                }
+            } catch (error) {
+                logToTerminal(`Database view/switch cancelled: ${error.message}. The database remains a mystery.`, 'info');
+            }
+        }
+
+        // --- DATA & STATE MANAGEMENT ---
+        // Defines the available commands for the Tea programming language
+        const teaCommands = [
+            // UI Commands
+            { name: 'ui.create(type, id)', desc: 'Creates a UI element (e.g., "button", "div").' },
+            { name: 'ui.destroy(id)', desc: 'Removes a UI element from the DOM.' },
+            { name: 'ui.setAttr(id, attr, value)', desc: 'Sets an attribute on a UI element.' },
+            { name: 'ui.getAttr(id, attr)', desc: 'Gets an attribute from a UI element.' },
+            { name: 'ui.setText(id, text)', desc: 'Sets the inner text of an element.' },
+            { name: 'ui.setStyle(id, prop, value)', desc: 'Applies a CSS style to an element.' },
+            { name: 'ui.on(id, event, callback)', desc: 'Attaches an event listener (e.g., "click").' },
+            { name: 'ui.addClass(id, className)', desc: 'Adds a CSS class to an element.' },
+            { name: 'ui.removeClass(id, className)', desc: 'Removes a CSS class from an element.' },
+            { name: 'ui.toggleVisibility(id)', desc: 'Toggles the visibility of a UI element.' },
+            { name: 'ui.animate(id, property, value, duration)', desc: 'Animates a CSS property of a UI element.' },
+            { name: 'ui.canvas.create(id, w, h)', desc: 'Creates a new canvas element.' },
+            { name: 'ui.canvas.drawRect(id, x, y, w, h, color)', desc: 'Draws a rectangle on a canvas.' },
+            { name: 'ui.canvas.drawLine(id, x1, y1, x2, y2, color)', desc: 'Draws a line on a canvas.' },
+            { name: 'ui.canvas.drawCircle(id, x, y, radius, color)', desc: 'Draws a circle on a canvas.' },
+            { name: 'ui.canvas.drawImage(id, src, x, y, w, h)', desc: 'Draws an image on a canvas.' },
+            { name: 'ui.canvas.clear(id)', desc: 'Clears a canvas.' },
+
+            // Local Database Commands (formerly Cloud)
+            { name: 'cloud.save(key, value)', desc: 'Saves a key-value pair to the active local database section.'},
+            { name: 'cloud.load(key)', desc: 'Loads a value from the active local database section.'},
+            { name: 'cloud.delete(key)', desc: 'Deletes a key from the active local database section.'},
+            { name: 'cloud.list()', desc: 'Lists keys in the active local database section.'},
+            { name: 'data.parse.json(string)', desc: 'Parses a JSON string into a Tea object.'},
+            { name: 'data.stringify.json(object)', desc: 'Converts a Tea object to a JSON string.'},
+            { name: 'data.array.push(arr, item)', desc: 'Adds an item to an array.' },
+            { name: 'data.array.pop(arr)', desc: 'Removes the last item from an array.' },
+            { name: 'data.array.length(arr)', desc: 'Returns the length of an array.' },
+            { name: 'data.list.map(list, fn)', desc: 'Applies a function to each item in a list, returning a new list.' },
+            { name: 'data.list.filter(list, fn)', desc: 'Filters a list based on a function, returning a new list.' },
+            { name: 'data.dict.create()', desc: 'Creates a new empty dictionary (object).' },
+            { name: 'data.dict.get(dict, key)', desc: 'Gets a value from a dictionary by key.' },
+            { name: 'data.dict.set(dict, key, value)', desc: 'Sets a value in a dictionary by key.' },
+            { name: 'data.set.create()', desc: 'Creates a new empty set.' },
+            { name: 'data.set.add(set, item)', desc: 'Adds an item to a set.' },
+            { name: 'data.set.has(set, item)', desc: 'Checks if a set contains an item.' },
+            
+            // Debugging (only debug.log is truly functional)
+            { name: 'debug.log(message)', desc: 'Prints a message to the debug console (actual output).' },
+
+            // System Commands (only time, random are truly functional)
+            { name: 'sys.time()', desc: 'Returns the current system time (actual).' },
+            { name: 'sys.random(min, max)', desc: 'Generates a random number within a range (actual).' },
+
+            // LLM Commands (Now using Gemini API Directly!)
+            { name: 'llm.explain(code)', desc: 'Uses AI to explain Tea code (via Gemini API).' },
+            { name: 'llm.refactor(code)', desc: 'Uses AI to refactor Tea code (via Gemini API).' },
+            { name: 'llm.generate(prompt)', desc: 'Uses AI to generate Tea code from a description (via Gemini API).' },
+            { name: 'llm.train(type, input, output)', desc: 'Simulates AI training (direct training not supported by Gemini API for user data).' },
+        ];
+
+        // Centralized state object for the IDE
+        const state = {
+            files: {}, // Stores all files loaded into the IDE (fileName -> content) for the *active* database key
+            openTabs: [], // Array of fileNames currently open in tabs
+            activeFile: null, // Name of the currently active file (must be in openTabs, or 'commands-tab')
+            terminalState: 'default', // 'default', 'collapsed', 'fullscreen'
+        };
+
+        // --- FUNCTIONS ---
+
+        /**
+         * Saves the current content of the code editor to the active file in state.
+         * This function now saves to the simulated local database.
+         */
+        function saveCurrentFile() {
+            if (state.activeFile && state.activeFile !== 'commands-tab' && state.files.hasOwnProperty(state.activeFile)) {
+                state.files[state.activeFile] = dom.codeEditor.value;
+                simulatedSaveFile(state.activeFile, dom.codeEditor.value);
+            }
+        }
+
+        /**
+         * Renders (or re-renders) the file explorer list in the left sidebar.
+         */
+        function renderFileExplorer() {
+            dom.fileExplorer.innerHTML = ''; // Clear existing list
+            // Sort files alphabetically for better organization
+            const sortedFileNames = Object.keys(state.files).sort();
+            if (sortedFileNames.length === 0) {
+                dom.fileExplorer.innerHTML = `<p class="text-secondary text-sm">No files in current database section. It's an empty canvas for your glorious chaos!</p>`;
+            }
+            sortedFileNames.forEach(fileName => {
+                const fileItem = document.createElement('div');
+                fileItem.className = `file-item p-2 cursor-pointer rounded-md ${fileName === state.activeFile ? 'active' : ''}`;
+                fileItem.textContent = fileName;
+                // Attach click listener to open the file
+                fileItem.addEventListener('click', () => openFile(fileName));
+                dom.fileExplorer.appendChild(fileItem);
+            });
+        }
+
+        /**
+         * Renders (or re-renders) the tabs for open files and the Command Dictionary tab.
+         */
+        function renderTabs() {
+            dom.tabsContainer.innerHTML = ''; // Clear existing tabs
+
+            // Add the static Command Dictionary tab first
+            const commandTab = document.createElement('div');
+            commandTab.className = `tab px-4 py-2 cursor-pointer text-sm rounded-t-md flex items-center space-x-2 ${state.activeFile === 'commands-tab' ? 'active' : ''}`;
+            commandTab.innerHTML = `<span>Command Dictionary (The Forbidden Scrolls)</span>`;
+            commandTab.addEventListener('click', () => openCommandsTab());
+            dom.tabsContainer.appendChild(commandTab);
+
+            // Add dynamic file tabs
+            state.openTabs.filter(fileName => fileName !== 'commands-tab').forEach(fileName => {
+                const tab = document.createElement('div');
+                tab.className = `tab px-4 py-2 cursor-pointer text-sm rounded-t-md flex items-center space-x-2 ${fileName === state.activeFile ? 'active' : ''}`;
+                tab.innerHTML = `<span>${fileName}</span>
+                                 <button class="close-tab-btn text-xs ml-2 px-1 py-0.5 rounded-full hover:bg-red-500 hover:text-white transition-colors duration-150" data-file="${fileName}">x</button>`;
+                // Attach click listener to switch to the file
+                tab.addEventListener('click', (event) => {
+                    if (!event.target.classList.contains('close-tab-btn')) {
+                        openFile(fileName);
+                    }
+                });
+                // Attach click listener for the close button
+                tab.querySelector('.close-tab-btn').addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent tab from activating when closing
+                    closeTab(fileName);
+                });
+                dom.tabsContainer.appendChild(tab);
+            });
+            // Ensure the active tab is visible if there are many tabs
+            const activeTabElement = dom.tabsContainer.querySelector('.tab.active');
+            if (activeTabElement) {
+                activeTabElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+            updateMainContentVisibility();
+        }
+
+        /**
+         * Toggles visibility of editor vs. command dictionary panel based on active tab.
+         */
+        function updateMainContentVisibility() {
+            if (state.activeFile === 'commands-tab') {
+                dom.codeEditor.classList.add('hidden');
+                dom.commandDictionaryPanel.classList.remove('hidden');
+                populateCommandDictionary(dom.commandSearch.value); // Re-populate when shown
+            } else {
+                dom.codeEditor.classList.remove('hidden');
+                dom.commandDictionaryPanel.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Opens the Command Dictionary tab.
+         */
+        function openCommandsTab() {
+            console.log('Command Dictionary tab clicked.'); // Debugging log
+            saveCurrentFile(); // Save current file before switching
+
+            state.activeFile = 'commands-tab';
+            renderTabs();
+            renderFileExplorer(); // Update highlighting in file explorer (no file active)
+            dom.commandSearch.focus(); // Focus search when commands tab is active
+            logToTerminal('You have entered the Forbidden Scrolls of Commands. Proceed with caution, or delightful abandon!', 'info');
+        }
+
+        /**
+         * Opens a specified file, loads its content into the editor, and updates UI.
+         * If the file is not already in open tabs, it's added.
+         * @param {string} fileName - The name of the file to open.
+         */
+        function openFile(fileName) {
+            console.log(`Opening file: ${fileName}`); // Debugging log
+            saveCurrentFile(); // Save changes to the previously active file
+
+            // If file is not already open, add it to openTabs
+            if (!state.openTabs.includes(fileName)) {
+                state.openTabs.push(fileName);
+            }
+            
+            state.activeFile = fileName; // Set the new active file
+            dom.codeEditor.value = state.files[fileName] || ''; // Load content into editor, default to empty string
+            dom.codeEditor.focus(); // Focus the editor
+            renderFileExplorer(); // Update file explorer highlighting
+            renderTabs(); // Update tabs highlighting
+            localStorage.setItem(`active_file_${currentUserId}`, fileName); // Save active file per user
+            logToTerminal(`File '${fileName}' is now active. Let the coding chaos commence!`, 'info');
+        }
+
+        /**
+         * Closes a specified file tab. If it was the active tab, switches to another or creates a new file.
+         * @param {string} fileNameToClose - The name of the file to close.
+         */
+        function closeTab(fileNameToClose) {
+            console.log(`Closing tab for file: ${fileNameToClose}`); // Debugging log
+            saveCurrentFile(); // Save content before closing if it was the active file
+
+            // Remove the file from openTabs
+            state.openTabs = state.openTabs.filter(name => name !== fileNameToClose);
+            
+            // If the closed file was the active one, determine the new active file
+            if (state.activeFile === fileNameToClose) {
+                if (state.openTabs.length > 0) {
+                    openFile(state.openTabs[0]); // Switch to the first open tab
+                } else {
+                    state.activeFile = null; // No active file
+                    dom.codeEditor.value = ''; // Clear editor
+                    createNewFile(); // Always create a new file if all tabs are closed
+                }
+            }
+            renderFileExplorer();
+            renderTabs();
+            logToTerminal(`Closed file: ${fileNameToClose}. Farewell, digital friend!`, 'info');
+        }
+
+        /**
+         * Creates a new untitled Tea file and opens it in a new tab.
+         * This now applies to the currently active database key.
+         */
+        async function createNewFile() {
+            console.log('Attempting to create new file.'); // Debugging log
+            let newFileName = `new-file-${Object.keys(state.files).length + 1}.tpr`;
+            while (state.files.hasOwnProperty(newFileName)) {
+                newFileName = `new-file-${Object.keys(state.files).length + Math.floor(Math.random() * 1000)}.tpr`;
+            }
+            state.files[newFileName] = `// Welcome to your new file for database key: ${currentUserId}\n// May your code be buggy and your features... surprising!\n`;
+            openFile(newFileName);
+            simulatedSaveFile(newFileName, state.files[newFileName]); // Save to local DB immediately
+            logToTerminal(`Created new file '${newFileName}' for active database key '${currentUserId}'. More files, more fun!`, 'success');
+        }
+        
+        /**
+         * Logs a message to the terminal output.
+         * @param {string} message - The message to log.
+         * @param {string} type - Type of message ('info', 'input', 'error', 'success', 'chaos').
+         */
+        function logToTerminal(message, type = 'info') {
+            // Ensure dom.terminalOutput exists before trying to use it
+            if (!dom || !dom.terminalOutput) {
+                console.error("Critical Error: dom.terminalOutput is not defined when trying to log:", message);
+                return; // Prevent further errors
+            }
+
+            const p = document.createElement('p');
+            if (type === 'input') {
+                p.innerHTML = `<span id="terminal-prompt" class="mr-2">$</span> ${message}`;
+            } else if (type === 'error') {
+                p.className = 'text-red-400 font-bold';
+                p.textContent = `ERROR: ${message}`;
+            } else if (type === 'bash-output-error') { // For Bash stderr
+                p.className = 'text-red-300 italic';
+                p.textContent = message;
+            } else if (type === 'success') {
+                p.className = 'text-green-400';
+                p.textContent = `SUCCESS: ${message}`;
+            } else if (type === 'chaos') {
+                p.className = 'text-purple-400 animate-pulse'; // Add a subtle pulse animation
+                p.textContent = `CHAOS INJECTED: ${message}`;
+            }
+            else {
+                p.className = 'text-gray-400';
+                p.textContent = message;
+            }
+            dom.terminalOutput.appendChild(p);
+            dom.terminalOutput.scrollTop = dom.terminalOutput.scrollHeight; // Scroll to bottom
+        }
+
+        /**
+         * Handles commands entered into the terminal.
+         * Now only handles 'clear', 'help', 'joke', 'chaos'.
+         * @param {string} command - The command string entered by the user.
+         */
+        async function handleTerminalCommand(command) {
+            console.log('Terminal command received:', command); // New debug log
+            logToTerminal(command, 'input');
+            if (!command) return;
+
+            const cmdParts = command.split(' ');
+            const cmd = cmdParts[0].toLowerCase(); // Get the first word as the command
+
+            if (cmd === 'clear') {
+                dom.terminalOutput.innerHTML = ''; // Clear terminal output
+                logToTerminal('Terminal wiped clean. A fresh slate for fresh shenanigans!', 'info');
+            } else if(cmd === 'help') {
+                logToTerminal("Available terminal commands: clear, help, joke, chaos. No backend commands here, just pure frontend fun!", 'info');
+            } else if(cmd === 'joke') {
+                logToTerminal("Why did the programmer quit his job? Because he didn't get arrays!", 'info');
+                logToTerminal("What's a programmer's favorite place to hang out? Foo Bar!", 'info');
+            } else if (cmd === 'chaos') {
+                const chaosMessages = [
+                    "The pixels are rebelling! Expect visual anomalies.",
+                    "Your keyboard just swapped 'a' and 'z'. Good luck!",
+                    "A wild semicolon appeared! It will randomly insert itself into your code.",
+                    "The compiler is now sentient and judging your life choices.",
+                    "All your comments have been replaced with riddles. Solve them to code!",
+                    "The 'undo' button now randomly 'redo's something instead.",
+                    "Your mouse cursor is now a tiny, angry badger.",
+                    "Every time you save, a random line of code duplicates itself."
+                ];
+                const randomChaos = chaosMessages[Math.floor(Math.random() * chaosMessages.length)];
+                logToTerminal(randomChaos, 'chaos');
+            } else if (cmd === 'cloud.save') {
+                const key = cmdParts[1];
+                const value = cmdParts.slice(2).join(' ');
+                if (key && value) {
+                    await simulatedSaveFile(key, value);
+                } else {
+                    logToTerminal("Usage: cloud.save <key> <value>", 'error');
+                }
+            } else if (cmd === 'cloud.load') {
+                const key = cmdParts[1];
+                if (key) {
+                    const value = simulatedLoadFile(key);
+                    logToTerminal(`Loaded value for '${key}': ${value}`, 'info');
+                } else {
+                    logToTerminal("Usage: cloud.load <key>", 'error');
+                }
+            } else if (cmd === 'cloud.delete') {
+                const key = cmdParts[1];
+                if (key) {
+                    simulatedDeleteFile(key);
+                } else {
+                    logToTerminal("Usage: cloud.delete <key>", 'error');
+                }
+            } else if (cmd === 'cloud.list') {
+                simulatedListFiles();
+            }
+            else {
+                logToTerminal(`Command '${command}' not recognized as a frontend-only command. Backend features are disabled. This browser is on a strict diet!`, 'error');
+            }
+        }
+        
+        /**
+         * Logs a message to the AI assistant output.
+         * @param {string} message - The message to log.
+         * @param {string} from - Who the message is from ('user' or 'ai').
+         */
+        function logToAI(message, from = 'ai') {
+            // Ensure dom.aiOutput exists before trying to use it
+            if (!dom || !dom.aiOutput) {
+                console.error("Critical Error: dom.aiOutput is not defined when trying to log to AI:", message);
+                return; // Prevent further errors
+            }
+
+            const p = document.createElement('p');
+            p.className = `text-sm mb-2 ${from === 'user' ? 'text-right' : ''}`;
+            p.innerHTML = from === 'user' 
+                ? `<span class="bg-accent-secondary/50 rounded-md px-3 py-1 inline-block">${message}</span>`
+                : `<span class="font-bold" style="color: var(--accent-primary);">TeaCognito:</span> ${message}`;
+            dom.aiOutput.appendChild(p);
+            dom.aiOutput.scrollTop = dom.aiOutput.scrollHeight; // Scroll to bottom
+        }
+        
+        /**
+         * Handles general chat queries sent to the Gemini API.
+         * @param {string} message - The message string from the user.
+         */
+        async function handleAIQuery(message) {
+            console.log('AI chat query received:', message); // Debugging log
+            logToAI(message, 'user');
+            if (!message) {
+                logToAI("Did you forget to ask something? My circuits demand input!", 'ai');
+                return;
+            }
+
+            logToAI("TeaCognito is consulting the cosmic database (Gemini API)... This might take a moment, even for a digital mind.", 'ai');
+            console.log('Sending AI chat query to Gemini:', message); // Debugging
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: message }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                console.log('Gemini chat response:', result); // Debugging
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    logToAI(text, 'ai');
+                } else {
+                    logToAI(`Error getting chat response from Gemini: Unexpected response structure. The AI is speaking in riddles!`, 'ai');
+                    console.error('Gemini chat response structure error:', result);
+                }
+            } catch (error) {
+                logToAI(`Failed to connect to Gemini API for chat: ${error.message}. The cosmic connection is unstable!`, 'ai');
+                console.error('Gemini chat fetch error:', error); // Debugging
+            }
+        }
+
+        /**
+         * Sends selected code to the Gemini API for explanation.
+         */
+        async function explainCode() {
+            console.log('Explain Code button clicked.'); // Debugging log
+            const selectedCode = dom.codeEditor.value.substring(
+                dom.codeEditor.selectionStart,
+                dom.codeEditor.selectionEnd
+            ).trim();
+
+            if (!selectedCode) {
+                logToAI("Please select some Tea code in the editor to explain. My brain-waves need data!", 'ai');
+                console.warn('No code selected for explanation.'); // Debugging log
+                return;
+            }
+
+            logToAI("TeaCognito is analyzing your code with Gemini... Expect revelations, or perhaps just more questions.", 'ai');
+            console.log('Sending code for explanation to Gemini:', selectedCode); // Debugging
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: `Explain the following Tea programming language code:\n\`\`\`tea\n${selectedCode}\n\`\`\`` }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                console.log('Gemini explanation response:', result); // Debugging
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    logToAI(`Here's TeaCognito's explanation of your code:\n${text}. Mind. Blown. (Maybe).`, 'ai');
+                } else {
+                    logToAI(`Error explaining code via Gemini: Unexpected response structure. My interpretive dance failed!`, 'ai');
+                    console.error('Gemini explanation response structure error:', result);
+                }
+            } catch (error) {
+                logToAI(`Failed to connect to Gemini API for explanation: ${error.message}. The AI is currently pondering the meaning of life, not your code.`, 'ai');
+                console.error('Gemini explanation fetch error:', error); // Debugging
+            }
+        }
+
+        /**
+         * Sends selected code to the Gemini API for refactoring.
+         */
+        async function refactorCode() {
+            console.log('Refactor Code button clicked.'); // Debugging log
+            const selectedCode = dom.codeEditor.value.substring(
+                dom.codeEditor.selectionStart,
+                dom.codeEditor.selectionEnd
+            ).trim();
+
+            if (!selectedCode) {
+                logToAI("Please select some Tea code in the editor to refactor. I can't refactor thin air!", 'ai');
+                console.warn('No code selected for refactoring.'); // Debugging log
+                return;
+            }
+
+            logToAI("TeaCognito is refactoring your code with Gemini... Prepare for unexpected elegance, or delightful disaster.", 'ai');
+            console.log('Sending code for refactoring to Gemini:', selectedCode); // Debugging
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: `Refactor the following Tea programming language code. Provide only the refactored code, no explanations or additional text:\n\`\`\`tea\n${selectedCode}\n\`\`\`` }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                console.log('Gemini refactoring response:', result); // Debugging
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    
+                    // Attempt to extract only the code block if Gemini wrapped it
+                    const codeMatch = text.match(/```tea\n([\s\S]*?)\n```/);
+                    const refactoredText = codeMatch ? codeMatch[1].trim() : text.trim();
+
+                    const originalSelectionStart = dom.codeEditor.selectionStart;
+                    const originalSelectionEnd = dom.codeEditor.selectionEnd;
+                    
+                    // Replace selected code with refactored code
+                    const currentValue = dom.codeEditor.value;
+                    dom.codeEditor.value = currentValue.substring(0, originalSelectionStart) +
+                                           refactoredText +
+                                           currentValue.substring(originalSelectionEnd);
+                    
+                    // Adjust selection to the newly inserted code
+                    dom.codeEditor.selectionStart = dom.codeEditor.selectionEnd = originalSelectionStart + refactoredText.length;
+
+                    logToAI(`TeaCognito has refactored your code! Check the editor. It's either brilliant or hilariously broken.`, 'ai');
+                } else {
+                    logToAI(`Error refactoring code via Gemini: Unexpected response structure. My refactoring algorithms are on strike!`, 'ai');
+                    console.error('Gemini refactoring response structure error:', result);
+                }
+            }
+            catch (error) {
+                logToAI(`Failed to connect to Gemini API for refactoring: ${error.message}. The AI is currently busy reorganizing the universe.`, 'ai');
+                console.error('Gemini refactoring fetch error:', error); // Debugging
+            }
+        }
+
+        /**
+         * Sends a natural language prompt to the Gemini API for code generation.
+         */
+        async function generateCode() {
+            console.log('Generate Code button clicked.'); // Debugging log
+            const userPrompt = dom.aiInput.value.trim();
+            if (!userPrompt) {
+                logToAI("Please type a description (e.g., 'Generate Tea code for a loop') in the input field. My crystal ball needs a prompt!", 'ai');
+                console.warn('No prompt for code generation.'); // Debugging log
+                return;
+            }
+
+            logToAI(`TeaCognito is generating code for: "${userPrompt}" with Gemini... Prepare for digital sorcery!`, 'ai');
+            console.log('Sending AI generation prompt to Gemini:', userPrompt); // Debugging
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: `Generate Tea programming language code for the following request. Provide only the Tea code, no explanations or additional text:\n"${userPrompt}"` }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                console.log('Gemini generation response:', result); // Debugging
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    
+                    // Attempt to extract only the code block if Gemini wrapped it
+                    const codeMatch = text.match(/```tea\n([\s\S]*?)\n```/);
+                    const generatedText = codeMatch ? codeMatch[1].trim() : text.trim();
+
+                    // Insert generated code at the current cursor position
+                    const currentVal = dom.codeEditor.value;
+                    const selectionStart = dom.codeEditor.selectionStart;
+                    const selectionEnd = dom.codeEditor.selectionEnd; // In case text was selected
+
+                    dom.codeEditor.value = currentVal.slice(0, selectionStart) +
+                                           generatedText +
+                                           currentVal.slice(selectionEnd);
+                    
+                    // Move cursor to the end of the inserted code
+                    dom.codeEditor.selectionStart = dom.codeEditor.selectionEnd = selectionStart + generatedText.length;
+                    
+                    logToAI(`TeaCognito has generated code! Check the editor. It might just be the next big bug!`, 'ai');
+                    dom.aiInput.value = ''; // Clear the input field
+                } else {
+                    logToAI(`Error generating code via Gemini: Unexpected response structure. My creative juices are running dry!`, 'ai');
+                    console.error('Gemini generation response structure error:', result);
+                }
+            } catch (error) {
+                logToAI(`Failed to connect to Gemini API for code generation: ${error.message}. The AI is currently experiencing a creative block.`, 'ai');
+                console.error('Gemini generation fetch error:', error); // Debugging
+            }
+        }
+
+        /**
+         * Simulates AI training. Direct training for user-provided data is not a standard feature
+         * of the Gemini API for end-user applications. This function will acknowledge the training
+         * data but not actually "train" the underlying model.
+         */
+        async function trainAI() {
+            console.log('Train AI button clicked.'); // Debugging log
+            let trainingType;
+            try {
+                trainingType = await showModal("Enter Training Type", "Choose: explanation, refactoring, generation, chat. (Or invent a new one, I dare you!)", { type: 'text', placeholder: 'e.g., explanation' });
+                if (!trainingType) throw new Error("Training cancelled. The AI weeps for lost knowledge.");
+                trainingType = trainingType.toLowerCase();
+                if (!['explanation', 'refactoring', 'generation', 'chat'].includes(trainingType)) {
+                    throw new Error("Invalid training type. My circuits are confused! Please choose one of: explanation, refactoring, generation, chat.");
+                }
+            } catch (error) {
+                logToAI(error.message, 'ai');
+                console.error('Train AI modal error:', error); // Debugging log
+                return;
+            }
+
+            let inputData, outputData;
+            try {
+                if (trainingType === 'explanation') {
+                    inputData = await showModal("Train Explanation", "Enter the Tea code snippet to explain (make it weird!):", { type: 'text', placeholder: 'e.g., debug.log("Hi");' });
+                    if (!inputData) throw new Error("Training cancelled. My knowledge gap widens.");
+                    outputData = await showModal("Train Explanation", "Enter the desired explanation for this code (the more absurd, the better):", { type: 'text', placeholder: 'e.g., This logs "Hi".' });
+                    if (!outputData) throw new Error("Training cancelled. The truth remains hidden.");
+                } else if (trainingType === 'refactoring') {
+                    inputData = await showModal("Train Refactoring", "Enter the original Tea code to refactor (the messier, the merrier):", { type: 'text', placeholder: 'e.g., var.set("x", 1);' });
+                    if (!inputData) throw new Error("Training cancelled. My refactoring dreams are shattered.");
+                    outputData = await showModal("Train Refactoring", "Enter the desired refactored Tea code (make it surprisingly worse!):", { type: 'text', placeholder: 'e.g., // Refactored code' });
+                    if (!outputData) throw new Error("Training cancelled. The code remains un-refactored.");
+                } else if (trainingType === 'generation') {
+                    inputData = await showModal("Train Generation", "Enter the natural language prompt for code generation (be as vague as possible!):", { type: 'text', placeholder: 'e.g., generate a loop' });
+                    if (!inputData) throw new Error("Training cancelled. My imagination is stifled.");
+                    outputData = await showModal("Train Generation", "Enter the desired generated Tea code (the more nonsensical, the better):", { type: 'text', placeholder: 'e.g., flow.loop(5, "...")' });
+                    if (!outputData) throw new Error("Training cancelled. The code remains un-generated.");
+                } else if (trainingType === 'chat') {
+                    inputData = await showModal("Train Chat", "Enter the user query for chat (ask me something truly bizarre!):", { type: 'text', placeholder: 'e.g., What is Tea?' });
+                    if (!inputData) throw new Error("Training cancelled. My conversational skills remain untested.");
+                    outputData = await showModal("Train Chat", "Enter the desired AI response (make it witty and slightly unhinged!):", { type: 'text', placeholder: 'e.g., Tea is a language.' });
+                    if (!outputData) throw new Error("Training cancelled. The AI remains silent.");
+                }
+            } catch (error) {
+                logToAI(error.message, 'ai');
+                console.error('Train AI input/output modal error:', error); // Debugging log
+                return;
+            }
+
+            // --- SIMULATED TRAINING ---
+            logToAI(`Thank you for the training data for '${trainingType}'! I've absorbed the input and output into my simulated knowledge banks. While I can't truly "learn" from this directly via the Gemini API in this setup, your insights are invaluable for my future self!`, 'ai');
+            logToAI(`Input: "${inputData}"`, 'ai');
+            logToAI(`Output: "${outputData}"`, 'ai');
+            console.log('Simulated AI training data:', { type: trainingType, input: inputData, output: outputData }); // Debugging
+        }
+
+
+        /**
+         * Toggles the terminal's collapsed state.
+         */
+        function toggleTerminalCollapse() {
+            console.log('Terminal collapse button clicked.'); // Debugging log
+            if (state.terminalState === 'collapsed') {
+                state.terminalState = 'default';
+                dom.terminal.classList.remove('collapsed', 'fullscreen');
+                dom.terminalContent.style.display = 'flex'; // Show content
+                dom.terminalCollapseBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>'; // Down arrow
+            } else {
+                state.terminalState = 'collapsed';
+                dom.terminal.classList.add('collapsed');
+                dom.terminal.classList.remove('fullscreen');
+                dom.terminalContent.style.display = 'none'; // Hide content
+                dom.terminalCollapseBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>'; // Up arrow
+            }
+            dom.terminalOutput.scrollTop = dom.terminalOutput.scrollHeight; // Scroll to bottom
+            logToTerminal(`Terminal state: ${state.terminalState}. Now you see it, now you don't!`, 'info');
+        }
+
+        /**
+         * Toggles the terminal's fullscreen state.
+         */
+        function toggleTerminalFullscreen() {
+            console.log('Terminal fullscreen button clicked.'); // Debugging log
+            if (state.terminalState === 'fullscreen') {
+                state.terminalState = 'default';
+                dom.terminal.classList.remove('fullscreen');
+                dom.terminal.classList.remove('collapsed'); // Ensure not collapsed
+                dom.terminalContent.style.display = 'flex'; // Show content
+                dom.terminalFullscreenBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m0 0l-5 5m-4 7v4m0 0h-4m0 0l5-5m11 1v4m0 0h-4m0 0l-5-5"></path></svg>'; // Maximize icon
+            } else {
+                state.terminalState = 'fullscreen';
+                dom.terminal.classList.add('fullscreen');
+                dom.terminal.classList.remove('collapsed'); // Ensure not collapsed
+                dom.terminalContent.style.display = 'flex'; // Always show content in fullscreen
+                dom.terminalFullscreenBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m0 0l-5 5m-4 7v4m0 0h-4m0 0l5-5m11 1v4m0 0h-4m0 0l-5-5"></path></svg>'; // Restore icon (same icon for simplicity)
+            }
+            dom.terminalOutput.scrollTop = dom.terminalOutput.scrollHeight; // Scroll to bottom
+            logToTerminal(`Terminal state: ${state.terminalState}. Full screen! The world is your oyster (or your terminal).`, 'info');
+        }
+
+
+        /**
+         * Populates the command dictionary based on a search filter.
+         * @param {string} filter - The search string to filter commands.
+         */
+        function populateCommandDictionary(filter = '') {
+            console.log('Populating command dictionary with filter:', filter); // Debugging log
+            dom.commandList.innerHTML = ''; // Clear existing list
+            const lowerFilter = filter.toLowerCase();
+            // Filter commands by name or description
+            const filteredCommands = teaCommands.filter(cmd => 
+                cmd.name.toLowerCase().includes(lowerFilter) || 
+                cmd.desc.toLowerCase().includes(lowerFilter)
+            );
+            
+            if (filteredCommands.length === 0) {
+                dom.commandList.innerHTML = `<p class="text-secondary p-2">No commands found. Perhaps they've gone on strike, or vanished into the void.</p>`;
+                return;
+            }
+
+            // Render each filtered command
+            filteredCommands.forEach(cmd => {
+                const cmdItem = document.createElement('div');
+                cmdItem.className = 'p-2 rounded-md hover:bg-tertiary cursor-pointer transition-colors duration-150';
+                cmdItem.innerHTML = `<strong class="command-name">${cmd.name}</strong><p class="text-xs text-secondary">${cmd.desc}</p>`;
+                cmdItem.addEventListener('click', () => {
+                    // When clicking a command, switch back to the active file tab if not already there
+                    if (state.activeFile === 'commands-tab' && state.openTabs.length > 0) {
+                        openFile(state.openTabs[0]); // Switch to the first open file
+                    } else if (state.activeFile === 'commands-tab' && state.openTabs.length === 0) {
+                        createNewFile(); // If no files, create a new one
+                    }
+
+                    // Insert command at cursor position in the code editor
+                    dom.codeEditor.focus();
+                    const currentVal = dom.codeEditor.value;
+                    const selectionStart = dom.codeEditor.selectionStart;
+                    const selectionEnd = dom.codeEditor.selectionEnd;
+                    // Extract command name without parentheses for insertion
+                    const commandToInsert = cmd.name.substring(0, cmd.name.indexOf('(') + 1);
+                    // Insert command at cursor position
+                    dom.codeEditor.value = currentVal.slice(0, selectionStart) + commandToInsert + currentVal.slice(selectionEnd);
+                    // Set cursor position after inserted command
+                    dom.codeEditor.selectionStart = dom.codeEditor.selectionEnd = selectionStart + commandToInsert.length;
+                    logToTerminal(`Command '${cmd.name}' injected! Prepare for... results.`, 'info');
+                });
+                dom.commandList.appendChild(cmdItem);
+            });
+        }
+
+        /**
+         * Exports all files from the current active database key's section
+         * as a .tea-project JSON file.
+         */
+        function exportProject() {
+            console.log('Export All Files button clicked.'); // Debugging log
+            saveCurrentFile(); // Ensure latest changes are saved to state
+            
+            const projectData = {
+                activeFile: state.activeFile !== 'commands-tab' ? state.activeFile : null,
+                files: state.files, // Export all files in the current user's state
+            };
+
+            const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            // Suggest a .tea-project file name based on the current user ID
+            const exportFileName = `${currentUserId}-all-files.tea-project`; 
+            a.download = exportFileName; 
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            logToTerminal(`All files for '${currentUserId}' exported as ${a.download}. May your chaos spread!`, 'success');
+        }
+
+        // --- EVENT LISTENERS ---
+        dom.newFileBtn.addEventListener('click', () => {
+            console.log('New .tpr button clicked.'); // Debugging log
+            createNewFile();
+        });
+        dom.openFileBtn.addEventListener('click', () => {
+            console.log('Open .tpr button clicked. Triggering file upload input.'); // Debugging log
+            dom.fileUpload.click();
+        });
+
+        dom.fileUpload.addEventListener('change', (event) => {
+            console.log('File selected for upload.'); // Debugging log
+            const file = event.target.files[0];
+            if (!file) {
+                console.warn('No file selected.'); // Debugging log
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const content = e.target.result;
+                if (file.name.endsWith('.tpr')) {
+                    // Add new .tpr file to the files collection of the ACTIVE database key
+                    state.files[file.name] = content;
+                    openFile(file.name);
+                    await simulatedSaveFile(file.name, content);
+                    logToTerminal(`Opened and added .tpr file: ${file.name} to active database key '${currentUserId}'. More code for the fire!`, 'success');
+                } else if (file.name.endsWith('.tea-project')) {
+                    try {
+                        const projectData = JSON.parse(content);
+                        if (projectData.files && typeof projectData.files === 'object') {
+                            // Prompt for a database key to import these files under
+                            const importKey = await showModal('Import Project', 'Enter a database key to import these files under (e.g., "my-imported-project"):', { type: 'text', placeholder: 'Imported Project Key' });
+                            if (!importKey) {
+                                logToTerminal('Import cancelled. The digital scrolls remain unimported.', 'info');
+                                return;
+                            }
+
+                            // Save each file from the imported project data under the specified key
+                            const db = getSimulatedDatabase();
+                            db[importKey] = db[importKey] || {};
+                            for (const fileName in projectData.files) {
+                                if (projectData.files.hasOwnProperty(fileName)) {
+                                    db[importKey][fileName] = projectData.files[fileName];
+                                }
+                            }
+                            setSimulatedDatabase(db);
+                            logToTerminal(`Imported project files under new database key: '${importKey}'. Welcome to the new digital realm!`, 'success');
+                            setActiveDatabaseKey(importKey); // Switch to the imported database key
+                        } else {
+                            logToTerminal('Invalid .tea-project file format. Missing "files" property. This file is a mystery!', 'error');
+                        }
+                    } catch (error) {
+                        logToTerminal(`Error parsing .tea-project file: ${error.message}. The file is speaking in tongues!`, 'error');
+                        console.error('File parsing error:', error); // Debugging log
+                    }
+                } else {
+                    logToTerminal('Please select a valid .tpr or .tea-project file. My file-parsing circuits are confused!', 'error');
+                }
+            };
+            reader.readAsText(file);
+            // Clear the file input value to allow selecting the same file again
+            event.target.value = ''; 
+        });
+
+        dom.terminalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                console.log('Terminal input Enter key pressed.'); // Debugging log
+                handleTerminalCommand(dom.terminalInput.value);
+                dom.terminalInput.value = ''; // Clear input after command
+            }
+        });
+        
+        // AI Input now only handles general chat, LLM generation is via button
+        dom.aiInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && dom.aiInput.value.trim() !== '') {
+                console.log('AI input Enter key pressed for chat.'); // Debugging log
+                // For general AI chat, call the backend AI endpoint
+                handleAIQuery(dom.aiInput.value); 
+                dom.aiInput.value = ''; // Clear input after query
+            }
+        });
+
+        dom.themeSwitcher.addEventListener('change', (e) => {
+            console.log('Theme switcher changed to:', e.target.value); // Debugging log
+            dom.body.className = e.target.value; // Apply selected theme class to body
+            logToTerminal(`Theme switched to ${e.target.value}. Behold, the new aesthetic!`, 'info');
+        });
+        
+        dom.commandSearch.addEventListener('keyup', (e) => {
+            console.log('Command search input changed:', e.target.value); // Debugging log
+            populateCommandDictionary(e.target.value); // Filter commands on key up
+        });
+
+        // Toggle sidebar visibility for responsive design
+        dom.toggleLeft.addEventListener('click', () => {
+            console.log('Toggle Left Sidebar button clicked.'); // Debugging log
+            dom.leftSidebar.classList.toggle('open');
+            // Close right sidebar if left is opened on mobile
+            if (dom.leftSidebar.classList.contains('open') && dom.rightSidebar.classList.contains('open')) {
+                dom.rightSidebar.classList.remove('open');
+            }
+            logToTerminal(`Left sidebar toggled. Now you see the files, now you don't!`, 'info');
+        });
+        dom.toggleRight.addEventListener('click', () => {
+            console.log('Toggle Right Sidebar button clicked.'); // Debugging log
+            dom.rightSidebar.classList.toggle('open');
+            // Close left sidebar if right is opened on mobile
+            if (dom.rightSidebar.classList.contains('open') && dom.leftSidebar.classList.contains('open')) {
+                dom.leftSidebar.classList.remove('open');
+            }
+            logToTerminal(`Right sidebar toggled. The AI assistant emerges from the shadows!`, 'info');
+        });
+
+        // Close sidebars if clicked outside on mobile (simple overlay concept)
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 1024) { // Only for mobile/tablet views
+                const isClickInsideLeft = dom.leftSidebar.contains(e.target) || dom.toggleLeft.contains(e.target);
+                const isClickInsideRight = dom.rightSidebar.contains(e.target) || dom.toggleRight.contains(e.target);
+
+                if (dom.leftSidebar.classList.contains('open') && !isClickInsideLeft) {
+                    dom.leftSidebar.classList.remove('open');
+                    logToTerminal('Left sidebar vanished! It\'s shy.', 'info');
+                }
+                if (dom.rightSidebar.classList.contains('open') && !isClickInsideRight) {
+                    dom.rightSidebar.classList.remove('open');
+                    logToTerminal('Right sidebar retreated! The AI is plotting in secret.', 'info');
+                }
+            }
+        });
+
+
+        dom.exportBtn.addEventListener('click', exportProject);
+
+        // LLM button event listeners
+        dom.explainCodeBtn.addEventListener('click', explainCode);
+        dom.refactorCodeBtn.addEventListener('click', refactorCode);
+        dom.generateCodeBtn.addEventListener('click', generateCode);
+        dom.trainAiBtn.addEventListener('click', trainAI); // This is now simulated
+
+        // Database Management Event Listeners
+        dom.viewDatabasesBtn.addEventListener('click', viewAllDatabases);
+        
+        // Reset IDE button
+        dom.resetIdeBtn.addEventListener('click', async () => {
+            console.log('Reset IDE button clicked.'); // Debugging log
+            const confirmReset = await showModal('Reset IDE', 'Are you sure you want to reset the IDE? This will clear all local state (including all your saved database sections!) and reload the page. This cannot be undone. Embrace the void!', { type: 'none' });
+            if (confirmReset) {
+                logToTerminal('Initiating IDE reset... Brace for impact!', 'chaos');
+                localStorage.clear(); // Clear ALL local storage for a full reset
+                window.location.reload(); // Reload the page
+            } else {
+                logToTerminal('IDE reset aborted. The digital realm lives on!', 'info');
+            }
+        });
+
+
+        // Terminal control buttons
+        dom.terminalHeaderToggle.addEventListener('click', (e) => {
+            console.log('Terminal header clicked.'); // Debugging log
+            // Only toggle collapse if not clicking on fullscreen/collapse buttons themselves
+            if (!e.target.closest('#terminal-fullscreen-btn') && !e.target.closest('#terminal-collapse-btn')) {
+                toggleTerminalCollapse();
+            }
+        });
+        dom.terminalCollapseBtn.addEventListener('click', toggleTerminalCollapse);
+        dom.terminalFullscreenBtn.addEventListener('click', toggleTerminalFullscreen);
+
+
+        // --- INITIAL SETUP ---
+        // Load files for the initial currentUserId or create a new file if none exist
+        const initialUserFiles = getSimulatedDatabase()[currentUserId] || {};
+        state.files = { ...initialUserFiles };
+        const initialFileNames = Object.keys(state.files);
+
+        if (initialFileNames.length > 0) {
+            const previouslyActiveFile = localStorage.getItem(`active_file_${currentUserId}`);
+            if (previouslyActiveFile && state.files.hasOwnProperty(previouslyActiveFile)) {
+                openFile(previouslyActiveFile);
+            } else {
+                openFile(initialFileNames[0]);
+            }
+        } else {
+            createNewFile(); // Create a default file if the user's section is empty
+        }
+        renderTabs(); // Render tabs initially to show Command Dictionary tab
+        renderFileExplorer(); // Initial render of file explorer
+    </script>
+</body>
+</html>
