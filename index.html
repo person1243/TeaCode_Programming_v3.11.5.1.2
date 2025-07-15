@@ -1096,7 +1096,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: message }] });
                 const payload = { contents: chatHistory };
-                const apiKey = ""; // Canvas will automatically provide this
+                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1140,7 +1140,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Explain the following Tea programming language code:\n\`\`\`tea\n${selectedCode}\n\`\`\`` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "";
+                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1185,7 +1185,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Refactor the following Tea programming language code. Provide only the refactored code, no explanations or additional text:\n\`\`\`tea\n${selectedCode}\n\`\`\`` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "";
+                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1236,7 +1236,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Generate Tea programming language code for the following request. Provide only the Tea code, no explanations or additional text:\n"${userPrompt}"` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "";
+                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
