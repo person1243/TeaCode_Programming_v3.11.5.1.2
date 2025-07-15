@@ -754,49 +754,60 @@
         // Defines the available commands for the Tea programming language
         const teaCommands = [
             // UI Commands
-            { name: 'ui.create(type, id)', desc: 'Creates a UI element (e.g., "button", "div").' },
-            { name: 'ui.destroy(id)', desc: 'Removes a UI element from the DOM.' },
-            { name: 'ui.setAttr(id, attr, value)', desc: 'Sets an attribute on a UI element.' },
-            { name: 'ui.getAttr(id, attr)', desc: 'Gets an attribute from a UI element.' },
-            { name: 'ui.setText(id, text)', desc: 'Sets the inner text of an element.' },
-            { name: 'ui.setStyle(id, prop, value)', desc: 'Applies a CSS style to an element.' },
-            { name: 'ui.on(id, event, callback)', desc: 'Attaches an event listener (e.g., "click").' },
-            { name: 'ui.addClass(id, className)', desc: 'Adds a CSS class to an element.' },
-            { name: 'ui.removeClass(id, className)', desc: 'Removes a CSS class from an element.' },
-            { name: 'ui.toggleVisibility(id)', desc: 'Toggles the visibility of a UI element.' },
-            { name: 'ui.animate(id, property, value, duration)', desc: 'Animates a CSS property of a UI element.' },
-            { name: 'ui.canvas.create(id, w, h)', desc: 'Creates a new canvas element.' },
-            { name: 'ui.canvas.drawRect(id, x, y, w, h, color)', desc: 'Draws a rectangle on a canvas.' },
-            { name: 'ui.canvas.drawLine(id, x1, y1, x2, y2, color)', desc: 'Draws a line on a canvas.' },
-            { name: 'ui.canvas.drawCircle(id, x, y, radius, color)', desc: 'Draws a circle on a canvas.' },
-            { name: 'ui.canvas.drawImage(id, src, x, y, w, h)', desc: 'Draws an image on a canvas.' },
-            { name: 'ui.canvas.clear(id)', desc: 'Clears a canvas.' },
+            { name: 'ui.forge.element.with.essence(type, id)', desc: 'Forges a new UI element (e.g., "button", "div") from the primordial essence.' },
+            { name: 'ui.destroy(id)', desc: 'Obliterates a UI element from existence (removes from DOM).' },
+            { name: 'ui.setAttr(id, attr, value)', desc: 'Bestows an attribute upon a UI element.' },
+            { name: 'ui.getAttr(id, attr)', desc: 'Retrieves an attribute from a UI element, revealing its hidden truths.' },
+            { name: 'ui.imbue.with.ancient.runes(id, text)', desc: 'Imbues a UI element with ancient runes (sets its inner text).' },
+            { name: 'ui.setStyle(id, prop, value)', desc: 'Applies a CSS style to an element, bending reality to your will.' },
+            { name: 'ui.attune.to.cosmic.vibrations(id, event, callback)', desc: 'Attunes a UI element to cosmic vibrations (attaches an event listener, e.g., "click").' },
+            { name: 'ui.addClass(id, className)', desc: 'Adds a CSS class to an element, granting it new properties.' },
+            { name: 'ui.removeClass(id, className)', desc: 'Removes a CSS class from an element, stripping its powers.' },
+            { name: 'ui.toggleVisibility(id)', desc: 'Toggles the visibility of a UI element, making it appear or vanish.' },
+            { name: 'ui.animate(id, property, value, duration)', desc: 'Animates a CSS property of a UI element, bringing it to life.' },
+            { name: 'ui.canvas.create(id, w, h)', desc: 'Summons a new canvas element from the ether.' },
+            { name: 'ui.canvas.drawRect(id, x, y, w, h, color)', desc: 'Draws a sacred rectangle on a canvas.' },
+            { name: 'ui.canvas.drawLine(id, x1, y1, x2, y2, color)', desc: 'Traces a mystical line on a canvas.' },
+            { name: 'ui.canvas.drawCircle(id, x, y, radius, color)', desc: 'Conjures a perfect circle on a canvas.' },
+            { name: 'ui.canvas.drawImage(id, src, x, y, w, h)', desc: 'Manifests an image on a canvas.' },
+            { name: 'ui.canvas.clear(id)', desc: 'Clears a canvas, wiping the slate clean.' },
+            { name: 'ui.etch.ephemeral.glyphs(id, content)', desc: 'Etches ephemeral glyphs (sets text content) onto a UI element. Use this for static text!' },
 
             // Local Database Commands (formerly Cloud)
-            { name: 'cloud.save(key, value)', desc: 'Saves a key-value pair to the active local database section.'},
-            { name: 'cloud.load(key)', desc: 'Loads a value from the active local database section.'},
-            { name: 'cloud.delete(key)', desc: 'Deletes a key from the active local database section.'},
-            { name: 'cloud.list()', desc: 'Lists keys in the active local database section.'},
-            { name: 'data.parse.json(string)', desc: 'Parses a JSON string into a Tea object.'},
-            { name: 'data.stringify.json(object)', desc: 'Converts a Tea object to a JSON string.'},
-            { name: 'data.array.push(arr, item)', desc: 'Adds an item to an array.' },
-            { name: 'data.array.pop(arr)', desc: 'Removes the last item from an array.' },
-            { name: 'data.array.length(arr)', desc: 'Returns the length of an array.' },
-            { name: 'data.list.map(list, fn)', desc: 'Applies a function to each item in a list, returning a new list.' },
-            { name: 'data.list.filter(list, fn)', desc: 'Filters a list based on a function, returning a new list.' },
-            { name: 'data.dict.create()', desc: 'Creates a new empty dictionary (object).' },
-            { name: 'data.dict.get(dict, key)', desc: 'Gets a value from a dictionary by key.' },
-            { name: 'data.dict.set(dict, key, value)', desc: 'Sets a value in a dictionary by key.' },
-            { name: 'data.set.create()', desc: 'Creates a new empty set.' },
-            { name: 'data.set.add(set, item)', desc: 'Adds an item to a set.' },
-            { name: 'data.set.has(set, item)', desc: 'Checks if a set contains an item.' },
+            { name: 'cloud.scribe.to.the.ether(key, value)', desc: 'Scribes a key-value pair to the ethereal archives (saves to active local database section).' },
+            { name: 'cloud.retrieve.from.the.astral.plane(key)', desc: 'Retrieves a value from the astral plane (loads from active local database section).' },
+            { name: 'cloud.delete(key)', desc: 'Erases a key from the ethereal archives.' },
+            { name: 'cloud.list()', desc: 'Lists the forgotten keys within the ethereal archives.' },
+            { name: 'data.parse.json(string)', desc: 'Deciphers a JSON string into a Tea object.' },
+            { name: 'data.stringify.json(object)', desc: 'Transmutes a Tea object into a JSON string.' },
+            { name: 'data.array.push(arr, item)', desc: 'Propels an item into the depths of an array.' },
+            { name: 'data.array.pop(arr)', desc: 'Extracts the last item from an array, leaving a void.' },
+            { name: 'data.array.length(arr)', desc: 'Measures the cosmic span of an array.' },
+            { name: 'data.list.map(list, fn)', desc: 'Applies a mystical transformation to each item in a list, yielding a new list.' },
+            { name: 'data.list.filter(list, fn)', desc: 'Filters a list based on a sacred function, revealing a new, purified list.' },
+            { name: 'data.dict.create()', desc: 'Conjures a new empty dictionary (object).' },
+            { name: 'data.dict.get(dict, key)', desc: 'Unlocks a value from a dictionary by its key.' },
+            { name: 'data.dict.set(dict, key, value)', desc: 'Inscribes a value into a dictionary by its key.' },
+            { name: 'data.set.create()', desc: 'Forges a new empty set.' },
+            { name: 'data.set.add(set, item)', desc: 'Adds an item to a set, expanding its cosmic collection.' },
+            { name: 'data.set.has(set, item)', desc: 'Probes a set to determine if it contains an item.' },
             
             // Debugging (only debug.log is truly functional)
-            { name: 'debug.log(message)', desc: 'Prints a message to the debug console (actual output).' },
+            { name: 'debug.whisper.to.the.void(message)', desc: 'Whispers a message to the void (prints to the debug console).' },
 
             // System Commands (only time, random are truly functional)
-            { name: 'sys.time()', desc: 'Returns the current system time (actual).' },
-            { name: 'sys.random(min, max)', desc: 'Generates a random number within a range (actual).' },
+            { name: 'sys.time()', desc: 'Reveals the current cosmic time.' },
+            { name: 'sys.random(min, max)', desc: 'Summons a random number from the realm of chaos within a given range.' },
+
+            // Arithmetic Commands (Chaos Edition)
+            { name: 'math.sum.of.cosmic.integers(num1, num2)', desc: 'Calculates the sum of two cosmic integers. Example: `math.sum.of.cosmic.integers(5, 3)`' },
+            { name: 'math.difference.of.celestial.bodies(num1, num2)', desc: 'Calculates the difference between two celestial bodies. Example: `math.difference.of.celestial.bodies(10, 4)`' },
+            { name: 'math.product.of.interstellar.constants(num1, num2)', desc: 'Computes the product of two interstellar constants. Example: `math.product.of.interstellar.constants(6, 7)`' },
+            { name: 'math.ratio.of.universal.proportions(num1, num2)', desc: 'Determines the ratio of two universal proportions. Example: `math.ratio.of.universal.proportions(20, 5)`' },
+            { name: 'math.power.of.ancient.stars(base, exponent)', desc: 'Raises a base to the power of an exponent, harnessing the power of ancient stars. Example: `math.power.of.ancient.stars(2, 3)`' },
+            { name: 'math.root.of.creation(number)', desc: 'Extracts the square root of a number, revealing its root of creation. Example: `math.root.of.creation(16)`' },
+            { name: 'math.solve.linear.equation(m, b, y_value)', desc: 'Solves a linear equation $y = mx + b$ for $x$. Example: `math.solve.linear.equation(2, 1, 9)` (solves $9 = 2x + 1$)' },
+            { name: 'math.solve.quadratic.equation(a, b, c)', desc: 'Solves a quadratic equation $ax^2 + bx + c = 0$ for $x$. Example: `math.solve.quadratic.equation(1, -3, 2)` (solves $x^2 - 3x + 2 = 0$)' },
 
             // LLM Commands (Now using Gemini API Directly!)
             { name: 'llm.explain(code)', desc: 'Uses AI to explain Tea code (via Gemini API).' },
@@ -981,7 +992,16 @@
             while (state.files.hasOwnProperty(newFileName)) {
                 newFileName = `new-file-${Object.keys(state.files).length + Math.floor(Math.random() * 1000)}.tpr`;
             }
-            state.files[newFileName] = `// Welcome to your new file for database key: ${currentUserId}\n// May your code be buggy and your features... surprising!\n\n// Example: debug.log("Hello from Tea!");\n// Example: ui.create("button", "myButton");\n// ui.setText("myButton", "Click Me!");\n// ui.on("myButton", "click", "debug.log('Button clicked!');");`;
+            state.files[newFileName] = `// Welcome to your new file for database key: ${currentUserId}
+// May your code be buggy and your features... surprising!
+
+// Example: debug.whisper.to.the.void("Hello from Tea!");
+// Example: ui.forge.element.with.essence("button", "myButton");
+// ui.imbue.with.ancient.runes("myButton", "Click Me!");
+// ui.attune.to.cosmic.vibrations("myButton", "click", "debug.whisper.to.the.void('Button clicked!');");
+// Example: ui.etch.ephemeral.glyphs("myTextDiv", "This is some hard-to-write text!");
+// Example: debug.whisper.to.the.void(math.sum.of.cosmic.integers(5, 3));
+// Example: debug.whisper.to.the.void(math.solve.quadratic.equation(1, -3, 2));`;
             openFile(newFileName);
             simulatedSaveFile(newFileName, state.files[newFileName]); // Save to local DB immediately
             logToTerminal(`Created new file '${newFileName}' for active database key '${currentUserId}'. More files, more fun!`, 'success');
@@ -1057,21 +1077,21 @@
                 ];
                 const randomChaos = chaosMessages[Math.floor(Math.random() * chaosMessages.length)];
                 logToTerminal(randomChaos, 'chaos');
-            } else if (cmd === 'cloud.save') {
+            } else if (cmd === 'cloud.scribe.to.the.ether') { // Updated command
                 const key = cmdParts[1];
                 const value = cmdParts.slice(2).join(' ');
                 if (key && value) {
                     await simulatedSaveFile(key, value);
                 } else {
-                    logToTerminal("Usage: cloud.save <key> <value>", 'error');
+                    logToTerminal("Usage: cloud.scribe.to.the.ether <key> <value>", 'error');
                 }
-            } else if (cmd === 'cloud.load') {
+            } else if (cmd === 'cloud.retrieve.from.the.astral.plane') { // Updated command
                 const key = cmdParts[1];
                 if (key) {
                     const value = simulatedLoadFile(key);
-                    logToTerminal(`Loaded value for '${key}': ${value}`, 'info');
+                    logToTerminal(`Retrieved value for '${key}': ${value}`, 'info');
                 } else {
-                    logToTerminal("Usage: cloud.load <key>", 'error');
+                    logToTerminal("Usage: cloud.retrieve.from.the.astral.plane <key>", 'error');
                 }
             } else if (cmd === 'cloud.delete') {
                 const key = cmdParts[1];
@@ -1128,7 +1148,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: message }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiKey = ""; // Canvas will automatically provide this
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1174,7 +1194,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Explain the following Tea programming language code:\n\`\`\`tea\n${selectedCode}\n\`\`\`` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiKey = ""; // Canvas will automatically provide this
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1221,7 +1241,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Refactor the following Tea programming language code. Provide only the refactored code, no explanations or additional text:\n\`\`\`tea\n${selectedCode}\n\`\`\`` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiKey = ""; // Canvas will automatically provide this
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1276,7 +1296,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Generate Tea programming language code for the following request. Provide only the Tea code, no explanations or additional text:\n"${userPrompt}"` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiKey = ""; // Canvas will automatically provide this
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1450,16 +1470,18 @@
              * @param {string} commandLine - The command string.
              */
             _executeCommand(commandLine) {
-                // debug.log(message)
-                let match = commandLine.match(/^debug\.log\((.*)\);?$/);
+                let match;
+
+                // debug.whisper.to.the.void(message)
+                match = commandLine.match(/^debug\.whisper\.to\.the\.void\((.*)\);?$/);
                 if (match) {
                     let message = this._evaluateExpression(match[1]);
                     this.log(String(message), 'info');
                     return;
                 }
 
-                // ui.create(type, id)
-                match = commandLine.match(/^ui\.create\("([^"]+)",\s*"([^"]+)"\);?$/);
+                // ui.forge.element.with.essence(type, id)
+                match = commandLine.match(/^ui\.forge\.element\.with\.essence\("([^"]+)",\s*"([^"]+)"\);?$/);
                 if (match) {
                     const type = match[1];
                     const id = match[2];
@@ -1474,8 +1496,8 @@
                     return;
                 }
 
-                // ui.setText(id, text)
-                match = commandLine.match(/^ui\.setText\("([^"]+)",\s*(.*)\);?$/);
+                // ui.imbue.with.ancient.runes(id, text)
+                match = commandLine.match(/^ui\.imbue\.with\.ancient\.runes\("([^"]+)",\s*(.*)\);?$/);
                 if (match) {
                     const id = match[1];
                     const text = this._evaluateExpression(match[2]);
@@ -1486,8 +1508,8 @@
                     return;
                 }
 
-                // ui.on(id, event, callbackCode)
-                match = commandLine.match(/^ui\.on\("([^"]+)",\s*"([^"]+)",\s*"(.*)"\);?$/);
+                // ui.attune.to.cosmic.vibrations(id, event, callbackCode)
+                match = commandLine.match(/^ui\.attune\.to\.cosmic\.vibrations\("([^"]+)",\s*"([^"]+)",\s*"(.*)"\);?$/);
                 if (match) {
                     const id = match[1];
                     const event = match[2];
@@ -1506,8 +1528,27 @@
                     return;
                 }
 
-                // cloud.save(key, value) - simulated
-                match = commandLine.match(/^cloud\.save\((.*),\s*(.*)\);?$/);
+                // ui.etch.ephemeral.glyphs(id, content) - NEW COMMAND
+                match = commandLine.match(/^ui\.etch\.ephemeral\.glyphs\("([^"]+)",\s*(.*)\);?$/);
+                if (match) {
+                    const id = match[1];
+                    const content = this._evaluateExpression(match[2]);
+                    let element = this.uiElements[id];
+                    if (!element) {
+                        // If element doesn't exist, create a div for it
+                        element = document.createElement('div');
+                        element.id = id;
+                        this.sandbox.appendChild(element);
+                        this.uiElements[id] = element;
+                        this.log(`Created new div for text element: <div id="${id}">`, 'success');
+                    }
+                    element.textContent = String(content);
+                    this.log(`Etched ephemeral glyphs for '${id}' with '${content}'`, 'success');
+                    return;
+                }
+
+                // cloud.scribe.to.the.ether(key, value) - simulated
+                match = commandLine.match(/^cloud\.scribe\.to\.the\.ether\((.*),\s*(.*)\);?$/);
                 if (match) {
                     const key = this._evaluateExpression(match[1]);
                     const value = this._evaluateExpression(match[2]);
@@ -1515,21 +1556,154 @@
                     return;
                 }
 
-                // cloud.load(key) - simulated
-                match = commandLine.match(/^cloud\.load\((.*)\);?$/);
+                // cloud.retrieve.from.the.astral.plane(key) - simulated
+                match = commandLine.match(/^cloud\.retrieve\.from\.the\.astral\.plane\((.*)\);?$/);
                 if (match) {
                     const key = this._evaluateExpression(match[1]);
                     const loadedValue = simulatedLoadFile(String(key));
-                    this.log(`Loaded value for '${key}': ${loadedValue}`, 'info');
+                    this.log(`Retrieved value for '${key}': ${loadedValue}`, 'info');
                     return;
                 }
+
+                // --- Arithmetic Commands ---
+                // Helper to parse comma-separated arguments
+                const parseArgs = (argsString) => {
+                    return argsString.split(',').map(arg => this._evaluateExpression(arg.trim()));
+                };
+
+                // math.sum.of.cosmic.integers(num1, num2)
+                match = commandLine.match(/^math\.sum\.of\.cosmic\.integers\((.*)\);?$/);
+                if (match) {
+                    const [num1, num2] = parseArgs(match[1]);
+                    if (typeof num1 === 'number' && typeof num2 === 'number') {
+                        const result = num1 + num2;
+                        this.log(`Cosmic Sum: ${result}`, 'info');
+                    } else {
+                        throw new Error(`Invalid arguments for math.sum.of.cosmic.integers. Expected two numbers.`);
+                    }
+                    return;
+                }
+
+                // math.difference.of.celestial.bodies(num1, num2)
+                match = commandLine.match(/^math\.difference\.of\.celestial\.bodies\((.*)\);?$/);
+                if (match) {
+                    const [num1, num2] = parseArgs(match[1]);
+                    if (typeof num1 === 'number' && typeof num2 === 'number') {
+                        const result = num1 - num2;
+                        this.log(`Celestial Difference: ${result}`, 'info');
+                    } else {
+                        throw new Error(`Invalid arguments for math.difference.of.celestial.bodies. Expected two numbers.`);
+                    }
+                    return;
+                }
+
+                // math.product.of.interstellar.constants(num1, num2)
+                match = commandLine.match(/^math\.product\.of\.interstellar\.constants\((.*)\);?$/);
+                if (match) {
+                    const [num1, num2] = parseArgs(match[1]);
+                    if (typeof num1 === 'number' && typeof num2 === 'number') {
+                        const result = num1 * num2;
+                        this.log(`Interstellar Product: ${result}`, 'info');
+                    } else {
+                        throw new Error(`Invalid arguments for math.product.of.interstellar.constants. Expected two numbers.`);
+                    }
+                    return;
+                }
+
+                // math.ratio.of.universal.proportions(num1, num2)
+                match = commandLine.match(/^math\.ratio\.of\.universal\.proportions\((.*)\);?$/);
+                if (match) {
+                    const [num1, num2] = parseArgs(match[1]);
+                    if (typeof num1 === 'number' && typeof num2 === 'number') {
+                        if (num2 === 0) throw new Error("Division by zero is an act of pure chaos! (Cannot divide by zero).");
+                        const result = num1 / num2;
+                        this.log(`Universal Ratio: ${result}`, 'info');
+                    } else {
+                        throw new Error(`Invalid arguments for math.ratio.of.universal.proportions. Expected two numbers.`);
+                    }
+                    return;
+                }
+
+                // math.power.of.ancient.stars(base, exponent)
+                match = commandLine.match(/^math\.power\.of\.ancient\.stars\((.*)\);?$/);
+                if (match) {
+                    const [base, exponent] = parseArgs(match[1]);
+                    if (typeof base === 'number' && typeof exponent === 'number') {
+                        const result = Math.pow(base, exponent);
+                        this.log(`Power of Ancient Stars: ${result}`, 'info');
+                    } else {
+                        throw new Error(`Invalid arguments for math.power.of.ancient.stars. Expected two numbers.`);
+                    }
+                    return;
+                }
+
+                // math.root.of.creation(number)
+                match = commandLine.match(/^math\.root\.of\.creation\((.*)\);?$/);
+                if (match) {
+                    const [number] = parseArgs(match[1]);
+                    if (typeof number === 'number') {
+                        if (number < 0) throw new Error("Cannot compute the root of creation for a negative number in this dimension.");
+                        const result = Math.sqrt(number);
+                        this.log(`Root of Creation: ${result}`, 'info');
+                    } else {
+                        throw new Error(`Invalid argument for math.root.of.creation. Expected a number.`);
+                    }
+                    return;
+                }
+
+                // math.solve.linear.equation(m, b, y_value)
+                match = commandLine.match(/^math\.solve\.linear\.equation\((.*)\);?$/);
+                if (match) {
+                    const [m, b, y_value] = parseArgs(match[1]);
+                    if (typeof m === 'number' && typeof b === 'number' && typeof y_value === 'number') {
+                        if (m === 0) {
+                            if (y_value === b) {
+                                this.log(`Linear Equation Solution: Infinite solutions (y = ${b}). The universe is boundless!`, 'info');
+                            } else {
+                                this.log(`Linear Equation Solution: No solution. The lines are parallel, never to meet.`, 'info');
+                            }
+                        } else {
+                            const x = (y_value - b) / m;
+                            this.log(`Linear Equation Solution for x: ${x}`, 'info');
+                        }
+                    } else {
+                        throw new Error(`Invalid arguments for math.solve.linear.equation. Expected three numbers (m, b, y_value).`);
+                    }
+                    return;
+                }
+
+                // math.solve.quadratic.equation(a, b, c)
+                match = commandLine.match(/^math\.solve\.quadratic\.equation\((.*)\);?$/);
+                if (match) {
+                    const [a, b, c] = parseArgs(match[1]);
+                    if (typeof a === 'number' && typeof b === 'number' && typeof c === 'number') {
+                        if (a === 0) throw new Error("This is not a quadratic equation. 'a' cannot be zero. The parabola collapses!");
+                        const discriminant = b * b - 4 * a * c;
+                        if (discriminant > 0) {
+                            const x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                            const x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+                            this.log(`Quadratic Equation Solutions: x1 = ${x1}, x2 = ${x2}. Two paths diverge in the digital wood.`, 'info');
+                        } else if (discriminant === 0) {
+                            const x = -b / (2 * a);
+                            this.log(`Quadratic Equation Solution: x = ${x}. A single, destined path.`, 'info');
+                        } else {
+                            const realPart = -b / (2 * a);
+                            const imaginaryPart = Math.sqrt(Math.abs(discriminant)) / (2 * a);
+                            this.log(`Quadratic Equation Solutions (Complex): x1 = ${realPart} + ${imaginaryPart}i, x2 = ${realPart} - ${imaginaryPart}i. The solutions transcend this reality.`, 'info');
+                        }
+                    } else {
+                        throw new Error(`Invalid arguments for math.solve.quadratic.equation. Expected three numbers (a, b, c).`);
+                    }
+                    return;
+                }
+
 
                 // For any other command, log as unsupported
                 this.log(`TeaEngine: Unsupported command or syntax: "${commandLine}"`, 'error');
             }
 
             /**
-             * Very basic expression evaluator for string literals and simple variables.
+             * Very basic expression evaluator for string literals and simple numbers.
              * In a real Tea interpreter, this would be a full-fledged expression parser.
              * @param {string} expr - The expression string.
              * @returns {*} The evaluated value.
@@ -1548,9 +1722,9 @@
                 if (expr === 'true') return true;
                 if (expr === 'false') return false;
 
-                // For now, only simple string/number/boolean literals and direct variable references are supported.
-                // More complex expressions (e.g., arithmetic, nested function calls) would require a full parser/AST.
-                throw new Error(`Unsupported expression type or syntax: '${expr}'`);
+                // For now, only simple string/number/boolean literals are supported directly in expressions.
+                // More complex expressions (e.g., arithmetic, nested function calls) are handled by specific commands.
+                throw new Error(`Unsupported expression type or syntax for direct evaluation: '${expr}'. Use specific math commands for calculations.`);
             }
         }
 
