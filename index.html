@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tea Programming Language IDE (Chaos Edition - Frontend Only, Local Database)</title>
+    <title>Tea Programming Language IDE (Chaos Edition - CodeMirror Edition)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/dracula.min.css">
+    
     <style>
         /* Define custom CSS variables for fonts */
         :root {
@@ -122,7 +127,7 @@
             box-shadow: 0 4px 8px var(--shadow-color);
         }
         /* Apply monospace font to code-related elements */
-        #code-editor, #terminal-input, #terminal-output, .metadata-input, #command-search, .command-name { font-family: var(--font-mono); }
+        #terminal-input, #terminal-output, .metadata-input, #command-search, .command-name { font-family: var(--font-mono); }
         #terminal-prompt { color: var(--accent-primary); }
         .command-name { color: var(--accent-primary); }
 
@@ -155,20 +160,20 @@
         #terminal.fullscreen {
             height: 100%; /* Full height of its parent */
             flex-grow: 1; /* Take all available space */
-            position: absolute; /* Position absolutely to overlay editor */
+            position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            z-index: 20; /* Above editor */
-            border-top: none; /* Remove top border in fullscreen */
-            border-radius: 0; /* Remove rounded corners in fullscreen */
+            z-index: 20;
+            border-top: none;
+            border-radius: 0;
         }
         #terminal.fullscreen #terminal-output {
-            height: calc(100% - 70px); /* Adjust for header and input */
+            height: calc(100% - 70px);
         }
         #terminal-output {
-            overflow-y: auto; /* Enable scrollbar for output area */
+            overflow-y: auto;
         }
 
         /* Responsive adjustments for sidebars */
@@ -177,40 +182,40 @@
                 position: absolute;
                 top: 0;
                 bottom: 0;
-                z-index: 10; /* Ensure sidebars are on top when open */
-                width: 280px; /* Slightly wider for mobile */
+                z-index: 10;
+                width: 280px;
                 box-shadow: 0 0 10px rgba(0,0,0,0.5);
             }
             #left-sidebar {
                 left: 0;
-                transform: translateX(-100%); /* Hidden by default */
+                transform: translateX(-100%);
             }
             #left-sidebar.open {
-                transform: translateX(0); /* Visible when open */
+                transform: translateX(0);
             }
             #right-sidebar {
                 right: 0;
-                transform: translateX(100%); /* Hidden by default */
+                transform: translateX(100%);
             }
             #right-sidebar.open {
-                transform: translateX(0); /* Visible when open */
+                transform: translateX(0);
             }
             .main-content-area {
-                width: 100%; /* Main content takes full width */
+                width: 100%;
             }
         }
 
         /* Custom Modal Styles */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 100; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 100;
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
             justify-content: center;
             align-items: center;
         }
@@ -244,19 +249,46 @@
             background-color: var(--bg-tertiary);
             color: var(--text-primary);
             border: 1px solid var(--border-color);
-            padding: 10px; /* Increased padding */
-            border-radius: 6px; /* More rounded */
+            padding: 10px;
+            border-radius: 6px;
             width: 100%;
-            margin-bottom: 15px; /* Increased margin */
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); /* Inner shadow */
+            margin-bottom: 15px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
         }
         .modal-error {
-            color: #ef4444; /* Red-500 */
+            color: #ef4444;
             margin-top: -10px;
             margin-bottom: 10px;
-            font-size: 0.875rem; /* text-sm */
+            font-size: 0.875rem;
         }
 
+        /* CodeMirror specific styling adjustments */
+        .CodeMirror {
+            height: 100%; /* Make CodeMirror fill its container */
+            font-family: var(--font-mono);
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.5; /* leading-relaxed */
+            background-color: var(--bg-primary); /* Match editor-bg */
+            color: var(--text-primary); /* Match text-primary */
+            border-radius: 0 0 8px 8px; /* Rounded bottom corners */
+        }
+        .CodeMirror-gutters {
+            background-color: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+        }
+        .CodeMirror-linenumber {
+            color: var(--text-secondary);
+        }
+        .CodeMirror-cursor {
+            border-left: 1px solid var(--accent-primary);
+        }
+        .CodeMirror-activeline-background {
+            background: var(--bg-tertiary);
+        }
+        .CodeMirror-selected {
+            background: var(--accent-primary) !important;
+            color: var(--bg-primary) !important;
+        }
     </style>
 </head>
 <body class="theme-matcha">
@@ -266,14 +298,17 @@
         <!-- Top Bar -->
         <div class="top-bar p-2 flex items-center justify-between flex-shrink-0 rounded-b-lg shadow-md">
             <div class="flex items-center space-x-4">
-                <!-- Tea IDE Logo/Icon -->
-                <svg class="w-8 h-8" style="color: var(--accent-primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.25278C12 6.25278 6.75 3 6.75 3C6.75 3 6 6.75 6 10.5C6 16.0208 10.2917 21 12 21C13.7083 21 18 16.0208 18 10.5C18 6.75 17.25 3 17.25 3C17.25 3 12 6.25278 12 6.25278Z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12C12 12 15 10.5 15 8.25C15 6 12 4.5 12 4.5C12 4.5 9 6 9 8.25C9 10.5 12 12 12 12Z"></path></svg>
+                <!-- New Tea IDE Logo/Icon (Stylized 'T' for Tea) -->
+                <svg class="w-8 h-8" style="color: var(--accent-primary)" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                    <path d='M14 3.5a.5.5 0 0 0-.5-.5h-12a.5.5 0 0 0-.5.5v.643l.706.706A4.5 4.5 0 0 0 4.5 9.5h7A4.5 4.5 0 0 0 13.794 4.85L14 4.643V3.5zm-1 0v.228l-.354.353a3.5 3.5 0 0 1-4.43 4.43L6 8.5h4a3.5 3.5 0 0 1 3.5-3.5zM.5 10a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1H.5zm.5 2.5a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1H1z'/>
+                </svg>
                 <span class="text-xl font-bold">Tea IDE (Chaos Edition)</span>
                 <div class="flex space-x-2">
                     <!-- Basic menu buttons (functionality not implemented in this demo) -->
                     <button class="btn px-3 py-1 rounded-md shadow-sm">File</button>
                     <button class="btn px-3 py-1 rounded-md shadow-sm">Edit</button>
-                    <!-- Removed: Run Tea Code Button -->
+                    <!-- Run Tea Code Button -->
+                    <button id="run-code-btn" class="btn-primary font-semibold px-3 py-1 rounded-md shadow-sm">▶ Run Code</button>
                     <!-- Theme Switcher Dropdown -->
                     <select id="theme-switcher" class="btn px-3 py-1 rounded-md shadow-sm cursor-pointer">
                         <option value="theme-matcha">Matcha</option>
@@ -324,9 +359,9 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M13 18h7"></path></svg>
                     </button>
                 </div>
-                <!-- Code Editor Area -->
+                <!-- Code Editor Area (CodeMirror will attach here) -->
                 <div id="editor-container" class="flex-grow editor-bg p-1 rounded-b-lg">
-                    <textarea id="code-editor" class="w-full h-full bg-transparent text-primary border-none focus:outline-none resize-none p-4 text-sm leading-relaxed" placeholder="Write your Tea code here..."></textarea>
+                    <!-- CodeMirror will be initialized here -->
                 </div>
                 <!-- Command Dictionary Panel (now within main content, toggled by tab) -->
                 <div id="command-dictionary-panel" class="flex-grow editor-bg p-4 flex flex-col rounded-b-lg hidden">
@@ -392,6 +427,10 @@
         </div>
     </div>
 
+    <!-- CodeMirror JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+
     <script type="module">
         // --- Simulated Database Key (User ID) ---
         // This key determines which section of the local database is currently active.
@@ -407,11 +446,11 @@
             toggleLeft: document.getElementById('toggle-left'),
             toggleRight: document.getElementById('toggle-right'),
             fileExplorer: document.getElementById('file-explorer'),
-            codeEditor: document.getElementById('code-editor'),
-            commandDictionaryPanel: document.getElementById('command-dictionary-panel'), // New panel for commands
-            terminal: document.getElementById('terminal'), // Main terminal container
-            terminalHeaderToggle: document.getElementById('terminal-header-toggle'), // Clickable header
-            terminalContent: document.getElementById('terminal-content'), // Content to hide/show
+            editorContainer: document.getElementById('editor-container'), // The div where CodeMirror attaches
+            commandDictionaryPanel: document.getElementById('command-dictionary-panel'),
+            terminal: document.getElementById('terminal'),
+            terminalHeaderToggle: document.getElementById('terminal-header-toggle'),
+            terminalContent: document.getElementById('terminal-content'),
             terminalOutput: document.getElementById('terminal-output'),
             terminalInput: document.getElementById('terminal-input'),
             terminalFullscreenBtn: document.getElementById('terminal-fullscreen-btn'),
@@ -426,6 +465,8 @@
             aiOutput: document.getElementById('ai-output'),
             aiInput: document.getElementById('ai-input'),
             exportBtn: document.getElementById('export-btn'),
+            // New Run Code Button
+            runCodeBtn: document.getElementById('run-code-btn'),
             // LLM buttons
             explainCodeBtn: document.getElementById('explain-code-btn'),
             refactorCodeBtn: document.getElementById('refactor-code-btn'),
@@ -446,6 +487,9 @@
             }
         }
         console.log('--------------------------------------');
+
+        // --- CodeMirror Editor Instance ---
+        let editor; // This will hold the CodeMirror instance
 
         // --- Custom Modal Implementation (replacing prompt/alert) ---
         const customModal = document.getElementById('custom-modal');
@@ -747,8 +791,8 @@
          */
         function saveCurrentFile() {
             if (state.activeFile && state.activeFile !== 'commands-tab' && state.files.hasOwnProperty(state.activeFile)) {
-                state.files[state.activeFile] = dom.codeEditor.value;
-                simulatedSaveFile(state.activeFile, dom.codeEditor.value);
+                state.files[state.activeFile] = editor.getValue(); // Use CodeMirror's getValue()
+                simulatedSaveFile(state.activeFile, editor.getValue());
             }
         }
 
@@ -817,11 +861,11 @@
          */
         function updateMainContentVisibility() {
             if (state.activeFile === 'commands-tab') {
-                dom.codeEditor.classList.add('hidden');
+                editor.getWrapperElement().classList.add('hidden'); // Hide CodeMirror
                 dom.commandDictionaryPanel.classList.remove('hidden');
                 populateCommandDictionary(dom.commandSearch.value); // Re-populate when shown
             } else {
-                dom.codeEditor.classList.remove('hidden');
+                editor.getWrapperElement().classList.remove('hidden'); // Show CodeMirror
                 dom.commandDictionaryPanel.classList.add('hidden');
             }
         }
@@ -855,8 +899,8 @@
             }
             
             state.activeFile = fileName; // Set the new active file
-            dom.codeEditor.value = state.files[fileName] || ''; // Load content into editor, default to empty string
-            dom.codeEditor.focus(); // Focus the editor
+            editor.setValue(state.files[fileName] || ''); // Load content into CodeMirror
+            editor.focus(); // Focus the editor
             renderFileExplorer(); // Update file explorer highlighting
             renderTabs(); // Update tabs highlighting
             localStorage.setItem(`active_file_${currentUserId}`, fileName); // Save active file per user
@@ -880,7 +924,7 @@
                     openFile(state.openTabs[0]); // Switch to the first open tab
                 } else {
                     state.activeFile = null; // No active file
-                    dom.codeEditor.value = ''; // Clear editor
+                    editor.setValue(''); // Clear editor
                     createNewFile(); // Always create a new file if all tabs are closed
                 }
             }
@@ -1046,7 +1090,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: message }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiKey = ""; // Canvas will automatically provide this
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1078,11 +1122,7 @@
          */
         async function explainCode() {
             console.log('Explain Code button clicked.'); // Debugging log
-            const selectedCode = dom.codeEditor.value.substring(
-                dom.codeEditor.selectionStart,
-                dom.codeEditor.selectionEnd
-            ).trim();
-
+            const selectedCode = editor.getSelection(); // Use CodeMirror's getSelection()
             if (!selectedCode) {
                 logToAI("Please select some Tea code in the editor to explain. My brain-waves need data!", 'ai');
                 console.warn('No code selected for explanation.'); // Debugging log
@@ -1096,7 +1136,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Explain the following Tea programming language code:\n\`\`\`tea\n${selectedCode}\n\`\`\`` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiKey = ""; // Canvas will automatically provide this
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1128,10 +1168,7 @@
          */
         async function refactorCode() {
             console.log('Refactor Code button clicked.'); // Debugging log
-            const selectedCode = dom.codeEditor.value.substring(
-                dom.codeEditor.selectionStart,
-                dom.codeEditor.selectionEnd
-            ).trim();
+            const selectedCode = editor.getSelection(); // Use CodeMirror's getSelection()
 
             if (!selectedCode) {
                 logToAI("Please select some Tea code in the editor to refactor. I can't refactor thin air!", 'ai');
@@ -1146,7 +1183,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Refactor the following Tea programming language code. Provide only the refactored code, no explanations or additional text:\n\`\`\`tea\n${selectedCode}\n\`\`\`` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiKey = ""; // Canvas will automatically provide this
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1167,18 +1204,9 @@
                     const codeMatch = text.match(/```tea\n([\s\S]*?)\n```/);
                     const refactoredText = codeMatch ? codeMatch[1].trim() : text.trim();
 
-                    const originalSelectionStart = dom.codeEditor.selectionStart;
-                    const originalSelectionEnd = dom.codeEditor.selectionEnd;
+                    // Replace selected code with refactored code using CodeMirror's replaceSelection()
+                    editor.replaceSelection(refactoredText);
                     
-                    // Replace selected code with refactored code
-                    const currentValue = dom.codeEditor.value;
-                    dom.codeEditor.value = currentValue.substring(0, originalSelectionStart) +
-                                           refactoredText +
-                                           currentValue.substring(originalSelectionEnd);
-                    
-                    // Adjust selection to the newly inserted code
-                    dom.codeEditor.selectionStart = dom.codeEditor.selectionEnd = originalSelectionStart + refactoredText.length;
-
                     logToAI(`TeaCognito has refactored your code! Check the editor. It's either brilliant or hilariously broken.`, 'ai');
                 } else {
                     logToAI(`Error refactoring code via Gemini: Unexpected response structure. My refactoring algorithms are on strike!`, 'ai');
@@ -1210,7 +1238,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Generate Tea programming language code for the following request. Provide only the Tea code, no explanations or additional text:\n"${userPrompt}"` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiKey = ""; // Canvas will automatically provide this
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1231,17 +1259,8 @@
                     const codeMatch = text.match(/```tea\n([\s\S]*?)\n```/);
                     const generatedText = codeMatch ? codeMatch[1].trim() : text.trim();
 
-                    // Insert generated code at the current cursor position
-                    const currentVal = dom.codeEditor.value;
-                    const selectionStart = dom.codeEditor.selectionStart;
-                    const selectionEnd = dom.codeEditor.selectionEnd; // In case text was selected
-
-                    dom.codeEditor.value = currentVal.slice(0, selectionStart) +
-                                           generatedText +
-                                           currentVal.slice(selectionEnd);
-                    
-                    // Move cursor to the end of the inserted code
-                    dom.codeEditor.selectionStart = dom.codeEditor.selectionEnd = selectionStart + generatedText.length;
+                    // Insert generated code at the current cursor position using CodeMirror's replaceSelection()
+                    editor.replaceSelection(generatedText);
                     
                     logToAI(`TeaCognito has generated code! Check the editor. It might just be the next big bug!`, 'ai');
                     dom.aiInput.value = ''; // Clear the input field
@@ -1356,6 +1375,17 @@
             logToTerminal(`Terminal state: ${state.terminalState}. Full screen! The world is your oyster (or your terminal).`, 'info');
         }
 
+        /**
+         * Simulates running the code in the CodeMirror editor.
+         * For this frontend-only IDE, it will simply log the code to the terminal.
+         */
+        function runCode() {
+            console.log('Run Code button clicked.');
+            const codeToRun = editor.getValue();
+            logToTerminal('--- Running Code ---', 'info');
+            logToTerminal(codeToRun, 'bash-output-error'); // Simulate output
+            logToTerminal('--- Code Execution Finished (Simulated) ---', 'info');
+        }
 
         /**
          * Populates the command dictionary based on a search filter.
@@ -1390,16 +1420,15 @@
                     }
 
                     // Insert command at cursor position in the code editor
-                    dom.codeEditor.focus();
-                    const currentVal = dom.codeEditor.value;
-                    const selectionStart = dom.codeEditor.selectionStart;
-                    const selectionEnd = dom.codeEditor.selectionEnd;
+                    editor.focus(); // Focus CodeMirror
+                    const doc = editor.getDoc();
+                    const cursor = doc.getCursor();
                     // Extract command name without parentheses for insertion
                     const commandToInsert = cmd.name.substring(0, cmd.name.indexOf('(') + 1);
                     // Insert command at cursor position
-                    dom.codeEditor.value = currentVal.slice(0, selectionStart) + commandToInsert + currentVal.slice(selectionEnd);
+                    doc.replaceRange(commandToInsert, cursor);
                     // Set cursor position after inserted command
-                    dom.codeEditor.selectionStart = dom.codeEditor.selectionEnd = selectionStart + commandToInsert.length;
+                    doc.setCursor({line: cursor.line, ch: cursor.ch + commandToInsert.length});
                     logToTerminal(`Command '${cmd.name}' injected! Prepare for... results.`, 'info');
                 });
                 dom.commandList.appendChild(cmdItem);
@@ -1519,6 +1548,14 @@
         dom.themeSwitcher.addEventListener('change', (e) => {
             console.log('Theme switcher changed to:', e.target.value); // Debugging log
             dom.body.className = e.target.value; // Apply selected theme class to body
+            // Update CodeMirror theme if it's initialized
+            if (editor) {
+                // Extract theme name from class (e.g., 'theme-matcha' -> 'matcha')
+                const themeName = e.target.value.replace('theme-', '');
+                // CodeMirror themes usually don't have 'theme-' prefix in their name
+                // We'll map our themes to a CodeMirror theme. Let's assume 'dracula' for all dark themes for simplicity.
+                editor.setOption('theme', 'dracula'); // Or add more specific theme mappings
+            }
             logToTerminal(`Theme switched to ${e.target.value}. Behold, the new aesthetic!`, 'info');
         });
         
@@ -1601,8 +1638,28 @@
         dom.terminalCollapseBtn.addEventListener('click', toggleTerminalCollapse);
         dom.terminalFullscreenBtn.addEventListener('click', toggleTerminalFullscreen);
 
+        // Run Code button listener
+        dom.runCodeBtn.addEventListener('click', runCode);
 
         // --- INITIAL SETUP ---
+        // Initialize CodeMirror
+        editor = CodeMirror(dom.editorContainer, {
+            value: "// Welcome to Tea IDE!\n// Start coding your chaos here.\n",
+            mode: "javascript", // Using JavaScript mode for Tea syntax highlighting
+            theme: "dracula",
+            lineNumbers: true,
+            indentUnit: 4,
+            tabSize: 4,
+            indentWithTabs: false,
+            autofocus: true,
+            lineWrapping: true,
+            matchBrackets: true,
+            autoCloseBrackets: true,
+            extraKeys: {
+                "Ctrl-Space": "autocomplete" // Example: if you add autocomplete
+            }
+        });
+
         // Load files for the initial currentUserId or create a new file if none exist
         const initialUserFiles = getSimulatedDatabase()[currentUserId] || {};
         state.files = { ...initialUserFiles };
