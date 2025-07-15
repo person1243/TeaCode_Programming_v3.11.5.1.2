@@ -289,6 +289,34 @@
             background: var(--accent-primary) !important;
             color: var(--bg-primary) !important;
         }
+        /* Styling for the output sandbox */
+        #output-sandbox {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            min-height: 100px; /* Ensure it's visible */
+            overflow: auto;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            display: flex; /* Allow flex layout for created UI elements */
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+        #output-sandbox button {
+            background-color: var(--accent-secondary);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+        }
+        #output-sandbox button:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body class="theme-matcha">
@@ -369,6 +397,10 @@
                     <input type="text" id="command-search" class="bg-tertiary w-full mb-3 p-2 rounded-md text-sm" placeholder="Search commands...">
                     <div id="command-list" class="editor-bg p-3 rounded-md flex-grow overflow-y-auto text-sm custom-scrollbar space-y-2"></div>
                 </div>
+                <!-- Output Sandbox for UI elements -->
+                <div id="output-sandbox" class="flex-grow editor-bg p-4 rounded-b-lg hidden">
+                    <p class="text-secondary">Run code to see UI elements appear here!</p>
+                </div>
                 <!-- Terminal Area -->
                 <div id="terminal" class="h-1/3 terminal-bg p-4 flex flex-col border-t rounded-t-lg" style="border-color: var(--border-color);">
                     <div class="flex items-center justify-between mb-2 panel-header pb-2 cursor-pointer" id="terminal-header-toggle">
@@ -448,6 +480,7 @@
             fileExplorer: document.getElementById('file-explorer'),
             editorContainer: document.getElementById('editor-container'), // The div where CodeMirror attaches
             commandDictionaryPanel: document.getElementById('command-dictionary-panel'),
+            outputSandbox: document.getElementById('output-sandbox'), // New: for UI output
             terminal: document.getElementById('terminal'),
             terminalHeaderToggle: document.getElementById('terminal-header-toggle'),
             terminalContent: document.getElementById('terminal-content'),
@@ -465,16 +498,13 @@
             aiOutput: document.getElementById('ai-output'),
             aiInput: document.getElementById('ai-input'),
             exportBtn: document.getElementById('export-btn'),
-            // New Run Code Button
             runCodeBtn: document.getElementById('run-code-btn'),
-            // LLM buttons
             explainCodeBtn: document.getElementById('explain-code-btn'),
             refactorCodeBtn: document.getElementById('refactor-code-btn'),
             generateCodeBtn: document.getElementById('generate-code-btn'),
             trainAiBtn: document.getElementById('train-ai-btn'),
-            // New Database Management UI
             viewDatabasesBtn: document.getElementById('view-databases-btn'),
-            resetIdeBtn: document.getElementById('reset-ide-btn') // Reset button
+            resetIdeBtn: document.getElementById('reset-ide-btn')
         };
 
         // --- Debugging: Verify DOM elements are found ---
@@ -857,16 +887,24 @@
         }
 
         /**
-         * Toggles visibility of editor vs. command dictionary panel based on active tab.
+         * Toggles visibility of editor vs. command dictionary panel vs. output sandbox based on active tab.
          */
         function updateMainContentVisibility() {
             if (state.activeFile === 'commands-tab') {
                 editor.getWrapperElement().classList.add('hidden'); // Hide CodeMirror
-                dom.commandDictionaryPanel.classList.remove('hidden');
+                dom.outputSandbox.classList.add('hidden'); // Hide output sandbox
+                dom.commandDictionaryPanel.classList.remove('hidden'); // Show command dictionary
                 populateCommandDictionary(dom.commandSearch.value); // Re-populate when shown
             } else {
-                editor.getWrapperElement().classList.remove('hidden'); // Show CodeMirror
-                dom.commandDictionaryPanel.classList.add('hidden');
+                dom.commandDictionaryPanel.classList.add('hidden'); // Hide command dictionary
+                // Determine whether to show editor or output sandbox
+                if (state.activeFile === 'output-tab') { // Assuming a new 'output-tab' for sandbox
+                    editor.getWrapperElement().classList.add('hidden');
+                    dom.outputSandbox.classList.remove('hidden');
+                } else {
+                    editor.getWrapperElement().classList.remove('hidden'); // Show CodeMirror
+                    dom.outputSandbox.classList.add('hidden');
+                }
             }
         }
 
@@ -943,7 +981,7 @@
             while (state.files.hasOwnProperty(newFileName)) {
                 newFileName = `new-file-${Object.keys(state.files).length + Math.floor(Math.random() * 1000)}.tpr`;
             }
-            state.files[newFileName] = `// Welcome to your new file for database key: ${currentUserId}\n// May your code be buggy and your features... surprising!\n`;
+            state.files[newFileName] = `// Welcome to your new file for database key: ${currentUserId}\n// May your code be buggy and your features... surprising!\n\n// Example: debug.log("Hello from Tea!");\n// Example: ui.create("button", "myButton");\n// ui.setText("myButton", "Click Me!");\n// ui.on("myButton", "click", "debug.log('Button clicked!');");`;
             openFile(newFileName);
             simulatedSaveFile(newFileName, state.files[newFileName]); // Save to local DB immediately
             logToTerminal(`Created new file '${newFileName}' for active database key '${currentUserId}'. More files, more fun!`, 'success');
@@ -1375,17 +1413,170 @@
             logToTerminal(`Terminal state: ${state.terminalState}. Full screen! The world is your oyster (or your terminal).`, 'info');
         }
 
-        /**
-         * Simulates running the code in the CodeMirror editor.
-         * For this frontend-only IDE, it will simply log the code to the terminal.
-         */
+        // --- Tea Language Interpreter (Simplified) ---
+        class TeaEngine {
+            constructor(terminalLogger, outputSandboxElement) {
+                this.log = terminalLogger;
+                this.sandbox = outputSandboxElement;
+                this.variables = {}; // Simple variable store
+                this.uiElements = {}; // Stores references to created UI elements
+            }
+
+            /**
+             * Runs a given Tea code snippet.
+             * @param {string} code - The Tea code to execute.
+             */
+            run(code) {
+                this.log('--- TeaEngine: Starting execution ---', 'info');
+                this.sandbox.innerHTML = ''; // Clear previous UI output
+                this.uiElements = {}; // Clear UI element references
+                this.variables = {}; // Reset variables for a fresh run
+
+                const lines = code.split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('//'));
+
+                for (const line of lines) {
+                    try {
+                        this._executeCommand(line);
+                    } catch (e) {
+                        this.log(`TeaEngine Error: ${e.message} in line: "${line}"`, 'error');
+                        break; // Stop execution on first error
+                    }
+                }
+                this.log('--- TeaEngine: Execution finished ---', 'info');
+            }
+
+            /**
+             * Executes a single Tea command line.
+             * @param {string} commandLine - The command string.
+             */
+            _executeCommand(commandLine) {
+                // debug.log(message)
+                let match = commandLine.match(/^debug\.log\((.*)\);?$/);
+                if (match) {
+                    let message = this._evaluateExpression(match[1]);
+                    this.log(String(message), 'info');
+                    return;
+                }
+
+                // ui.create(type, id)
+                match = commandLine.match(/^ui\.create\("([^"]+)",\s*"([^"]+)"\);?$/);
+                if (match) {
+                    const type = match[1];
+                    const id = match[2];
+                    if (this.uiElements[id]) {
+                        throw new Error(`UI element with ID '${id}' already exists.`);
+                    }
+                    const element = document.createElement(type);
+                    element.id = id;
+                    this.sandbox.appendChild(element);
+                    this.uiElements[id] = element;
+                    this.log(`Created UI element: <${type} id="${id}">`, 'success');
+                    return;
+                }
+
+                // ui.setText(id, text)
+                match = commandLine.match(/^ui\.setText\("([^"]+)",\s*(.*)\);?$/);
+                if (match) {
+                    const id = match[1];
+                    const text = this._evaluateExpression(match[2]);
+                    const element = this.uiElements[id];
+                    if (!element) throw new Error(`UI element with ID '${id}' not found.`);
+                    element.textContent = String(text);
+                    this.log(`Set text for '${id}' to '${text}'`, 'success');
+                    return;
+                }
+
+                // ui.on(id, event, callbackCode)
+                match = commandLine.match(/^ui\.on\("([^"]+)",\s*"([^"]+)",\s*"(.*)"\);?$/);
+                if (match) {
+                    const id = match[1];
+                    const event = match[2];
+                    const callbackCode = match[3];
+                    const element = this.uiElements[id];
+                    if (!element) throw new Error(`UI element with ID '${id}' not found.`);
+                    
+                    // Create a new, isolated TeaEngine for the callback to prevent scope pollution
+                    const callbackEngine = new TeaEngine(this.log, this.sandbox);
+                    
+                    element.addEventListener(event, () => {
+                        this.log(`Event '${event}' triggered on '${id}'. Executing callback...`, 'info');
+                        callbackEngine.run(callbackCode); // Run callback code
+                    });
+                    this.log(`Attached '${event}' listener to '${id}'`, 'success');
+                    return;
+                }
+
+                // cloud.save(key, value) - simulated
+                match = commandLine.match(/^cloud\.save\((.*),\s*(.*)\);?$/);
+                if (match) {
+                    const key = this._evaluateExpression(match[1]);
+                    const value = this._evaluateExpression(match[2]);
+                    simulatedSaveFile(String(key), String(value));
+                    return;
+                }
+
+                // cloud.load(key) - simulated
+                match = commandLine.match(/^cloud\.load\((.*)\);?$/);
+                if (match) {
+                    const key = this._evaluateExpression(match[1]);
+                    const loadedValue = simulatedLoadFile(String(key));
+                    this.log(`Loaded value for '${key}': ${loadedValue}`, 'info');
+                    return;
+                }
+
+                // For any other command, log as unsupported
+                this.log(`TeaEngine: Unsupported command or syntax: "${commandLine}"`, 'error');
+            }
+
+            /**
+             * Very basic expression evaluator for string literals and simple variables.
+             * In a real Tea interpreter, this would be a full-fledged expression parser.
+             * @param {string} expr - The expression string.
+             * @returns {*} The evaluated value.
+             */
+            _evaluateExpression(expr) {
+                expr = expr.trim();
+                // Handle string literals (e.g., "Hello World")
+                if (expr.startsWith('"') && expr.endsWith('"')) {
+                    return expr.substring(1, expr.length - 1);
+                }
+                // Handle numbers
+                if (!isNaN(Number(expr))) {
+                    return Number(expr);
+                }
+                // Handle boolean literals
+                if (expr === 'true') return true;
+                if (expr === 'false') return false;
+
+                // For now, only simple string/number/boolean literals and direct variable references are supported.
+                // More complex expressions (e.g., arithmetic, nested function calls) would require a full parser/AST.
+                throw new Error(`Unsupported expression type or syntax: '${expr}'`);
+            }
+        }
+
+        // --- Run Code Function ---
         function runCode() {
             console.log('Run Code button clicked.');
             const codeToRun = editor.getValue();
-            logToTerminal('--- Running Code ---', 'info');
-            logToTerminal(codeToRun, 'bash-output-error'); // Simulate output
-            logToTerminal('--- Code Execution Finished (Simulated) ---', 'info');
+
+            // Hide editor, show output sandbox
+            editor.getWrapperElement().classList.add('hidden');
+            dom.outputSandbox.classList.remove('hidden');
+
+            // Initialize and run the TeaEngine
+            const teaEngine = new TeaEngine(logToTerminal, dom.outputSandbox);
+            teaEngine.run(codeToRun);
+            
+            logToTerminal('--- Code Execution Finished (See Output Sandbox for UI) ---', 'info');
+
+            // Optionally, add a tab for the output sandbox if not already there
+            if (!state.openTabs.includes('output-tab')) {
+                state.openTabs.push('output-tab');
+            }
+            state.activeFile = 'output-tab';
+            renderTabs(); // Re-render tabs to show output tab active
         }
+
 
         /**
          * Populates the command dictionary based on a search filter.
