@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tea Programming Language IDE</title>
+    <title>Tea Programming Language IDE (Professional Edition - CodeMirror Edition)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2338BDF8'%3E%3Cpath d='M14 3.5a.5.5 0 0 0-.5-.5h-12a.5.5 0 0 0-.5.5v.643l.706.706A4.5 4.5 0 0 0 4.5 9.5h7A4.5 4.5 0 0 0 13.794 4.85L14 4.643V3.5zm-1 0v.228l-.354.353a3.5 3.5 0 0 1-4.43 4.43L6 8.5h4a3.5 3.5 0 0 1 3.5-3.5zM.5 10a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1H.5zm.5 2.5a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1H1z'/%3E%3C/svg%3E" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     
     <!-- CodeMirror CSS -->
@@ -318,72 +317,6 @@
         #output-sandbox button:hover {
             opacity: 0.9;
         }
-
-        /* Coffee Spill Animation */
-        @keyframes coffeeSpill {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
-            }
-            20% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.1) rotate(10deg);
-            }
-            80% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1) rotate(5deg);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.9) rotate(0deg);
-            }
-        }
-
-        #coffee-spill-overlay {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px; /* Adjust size as needed */
-            height: 300px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="%236F4E37" d="M50,10 C77.6,10 100,32.4 100,60 C100,75 88,90 70,95 C60,98 50,100 50,100 C50,100 40,98 30,95 C12,90 0,75 0,60 C0,32.4 22.4,10 50,10 Z" transform="rotate(15 50 50)"/><path fill="%238B5A2B" d="M50,15 C74.8,15 95,35.2 95,60 C95,73 84,86 68,90 C59,92 50,93 50,93 C50,93 41,92 32,90 C16,86 5,73 5,60 C5,35.2 25.2,15 50,15 Z" transform="rotate(-5 50 50)"/></svg>');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            z-index: 9999;
-            pointer-events: none; /* Allow clicks to pass through */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.5s, visibility 0.5s;
-        }
-
-        #coffee-spill-overlay.active {
-            animation: coffeeSpill 2s ease-out forwards;
-            visibility: visible;
-        }
-
-        #coffee-spill-message {
-            position: fixed;
-            top: 65%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-align: center;
-            z-index: 10000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.5s, visibility 0.5s;
-        }
-
-        #coffee-spill-message.active {
-            opacity: 1;
-            visibility: visible;
-        }
     </style>
 </head>
 <body class="theme-matcha">
@@ -397,7 +330,7 @@
                 <svg class="w-8 h-8" style="color: var(--accent-primary)" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                     <path d='M14 3.5a.5.5 0 0 0-.5-.5h-12a.5.5 0 0 0-.5.5v.643l.706.706A4.5 4.5 0 0 0 4.5 9.5h7A4.5 4.5 0 0 0 13.794 4.85L14 4.643V3.5zm-1 0v.228l-.354.353a3.5 3.5 0 0 1-4.43 4.43L6 8.5h4a3.5 3.5 0 0 1 3.5-3.5zM.5 10a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1H.5zm.5 2.5a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1H1z'/>
                 </svg>
-                <span class="text-xl font-bold">Tea IDE</span>
+                <span class="text-xl font-bold">Tea IDE (Professional Edition)</span>
                 <div class="flex space-x-2">
                     <!-- Basic menu buttons (functionality not implemented in this demo) -->
                     <button class="btn px-3 py-1 rounded-md shadow-sm">File</button>
@@ -406,10 +339,10 @@
                     <button id="run-code-btn" class="btn-primary font-semibold px-3 py-1 rounded-md shadow-sm">▶ Run Code</button>
                     <!-- Theme Switcher Dropdown -->
                     <select id="theme-switcher" class="btn px-3 py-1 rounded-md shadow-sm cursor-pointer">
-                        <option value="theme-matcha">Forest</option>
-                        <option value="theme-earl-grey">Dark Ocean</option>
-                        <option value="theme-chai">Sunrise</option>
-                        <option value="theme-classic">Midnight</option>
+                        <option value="theme-matcha">Matcha</option>
+                        <option value="theme-earl-grey">Earl Grey</option>
+                        <option value="theme-chai">Chai</option>
+                        <option value="theme-classic">Classic Dark</option>
                     </select>
                 </div>
             </div>
@@ -526,9 +459,7 @@
         </div>
     </div>
 
-    <!-- Coffee Spill Overlay -->
-    <div id="coffee-spill-overlay"></div>
-    <div id="coffee-spill-message">Oh no! User spilled coffee on the server!</div>
+    <!-- Removed Coffee Spill Overlay and Message -->
 
     <!-- CodeMirror JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
@@ -582,7 +513,7 @@
         console.log('--- DOM Element Initialization Check ---');
         for (const key in dom) {
             if (dom[key] === null) {
-                console.error(`ERROR: DOM element '${key}' not found! Please check your HTML IDs. The digital spirits are confused.`);
+                console.error(`ERROR: DOM element '${key}' not found! Please check your HTML IDs.`);
             } else {
                 console.log(`SUCCESS: DOM element '${key}' found.`);
             }
@@ -648,7 +579,7 @@
 
         modalOkBtn.onclick = () => {
             if (!modalInput.classList.contains('hidden') && modalInput.value.trim() === '') {
-                displayModalError('Input cannot be empty. The universe demands input!');
+                displayModalError('Input cannot be empty.');
                 return;
             }
             closeModal();
@@ -661,18 +592,18 @@
 
         modalCancelBtn.onclick = () => {
             closeModal();
-            modalReject(new Error('Modal cancelled. The void disapproves of indecision.')); // For prompt-like behavior
+            modalReject(new Error('Modal cancelled.')); // For prompt-like behavior
         };
 
         closeButton.onclick = () => {
             closeModal();
-            modalReject(new Error('Modal closed by outside click. Did you just... vanish?')); // Treat closing as cancellation
+            modalReject(new Error('Modal closed by outside click.')); // Treat closing as cancellation
         };
 
         window.onclick = (event) => {
             if (event.target === customModal) {
                 closeModal();
-                modalReject(new Error('Modal closed by outside click. The matrix shifted.'));
+                modalReject(new Error('Modal closed by outside click.'));
             }
         };
         // End Custom Modal
@@ -841,8 +772,8 @@
             { name: 'UI.DisplayStaticText(string id, string content);', desc: 'Displays static text content in the output sandbox.' },
 
             // Local Database Commands (C++-like syntax)
-            { name: 'Data.StoreValue(string key, string value);', desc: 'Stores a key-value pair in the active local database section.' },
-            { name: 'Data.RetrieveValue(string key);', desc: 'Retrieves a value from the active local database section.' },
+            { name: 'Data.StoreValue(string key, string value);', desc: 'Stores a key-value pair in the active local database section. Supports variable names for key/value.' },
+            { name: 'Data.RetrieveValue(string key);', desc: 'Retrieves a value from the active local database section. Returns the value.' },
             { name: 'Data.DeleteValue(string key);', desc: 'Deletes a key-value pair from the active local database section.' },
             { name: 'Data.ListKeys();', desc: 'Lists all keys in the active local database section.' },
             { name: 'Data.ParseJSON(string jsonString);', desc: 'Parses a JSON string into a Tea object.' },
@@ -860,7 +791,7 @@
             { name: 'Data.Set.Has(set s, any item);', desc: 'Checks if a set contains an item.' },
             
             // Debugging (C++-like syntax)
-            { name: 'Debug.Log(string message);', desc: 'Prints a message to the debug console.' },
+            { name: 'Debug.Log(string message);', desc: 'Prints a message to the debug console. Supports variable names.' },
 
             // System Commands (C++-like syntax)
             { name: 'System.GetCurrentTime();', desc: 'Retrieves the current system time.' },
@@ -1066,7 +997,9 @@
 // UI.AttachEvent("myButton", "click", "Debug.Log(\\"Button clicked!\\");");
 // Example: UI.DisplayStaticText("myTextDiv", "This is some static text.");
 // Example: Debug.Log(Math.Add(5.0, 3.0));
-// Example: Debug.Log(Math.SolveQuadratic(1.0, -3.0, 2.0));`;
+// Example: Debug.Log(Math.SolveQuadratic(1.0, -3.0, 2.0));
+// Example: Data.StoreValue("myStoredValue", "This is a test.");
+// Example: Debug.Log(Data.RetrieveValue("myStoredValue"));`;
             openFile(newFileName);
             simulatedSaveFile(newFileName, state.files[newFileName]); // Save to local DB immediately
             logToTerminal(`Created new file '${newFileName}' for active database key '${currentUserId}'.`, 'success');
@@ -1101,19 +1034,7 @@
             dom.terminalOutput.scrollTop = dom.terminalOutput.scrollHeight; // Scroll to bottom
         }
 
-        /**
-         * Displays the coffee spill animation and message.
-         */
-        function showCoffeeSpillAnimation() {
-            const overlay = document.getElementById('coffee-spill-overlay');
-            const message = document.getElementById('coffee-spill-message');
-            overlay.classList.add('active');
-            message.classList.add('active');
-            setTimeout(() => {
-                overlay.classList.remove('active');
-                message.classList.remove('active');
-            }, 2500); // Animation duration + a little extra
-        }
+        // Removed showCoffeeSpillAnimation function
 
         /**
          * Handles commands entered into the terminal.
@@ -1175,7 +1096,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: message }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA"; // Canvas will automatically provide this
+                const apiKey = ""; // Canvas will automatically provide this
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1219,7 +1140,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Explain the following Tea programming language code:\n\`\`\`tea\n${selectedCode}\n\`\`\`` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA";
+                const apiKey = "";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1264,7 +1185,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Refactor the following Tea programming language code. Provide only the refactored code, no explanations or additional text:\n\`\`\`tea\n${selectedCode}\n\`\`\`` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA";
+                const apiKey = "";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1315,7 +1236,7 @@
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: `Generate Tea programming language code for the following request. Provide only the Tea code, no explanations or additional text:\n"${userPrompt}"` }] });
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyATi_dabA3idMkanRKHQWZmeor9iz0Y_rA";
+                const apiKey = "";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1428,10 +1349,9 @@
 
         // --- Tea Language Interpreter (Simplified) ---
         class TeaEngine {
-            constructor(terminalLogger, outputSandboxElement, showCoffeeSpillAnimation) {
+            constructor(terminalLogger, outputSandboxElement) { // Removed showCoffeeSpillAnimation parameter
                 this.log = terminalLogger;
                 this.sandbox = outputSandboxElement;
-                this.showCoffeeSpill = showCoffeeSpillAnimation; // Reference to the animation function
                 this.variables = {}; // Simple variable store
                 this.uiElements = {}; // Stores references to created UI elements
             }
@@ -1453,7 +1373,7 @@
                         this._executeCommand(line);
                     } catch (e) {
                         this.log(`Execution Error: ${e.message} in line: "${line}"`, 'error');
-                        this.showCoffeeSpill(); // Trigger animation
+                        // Removed this.showCoffeeSpill();
                         break; // Stop execution on first error
                     }
                 }
@@ -1512,7 +1432,9 @@
                     const element = this.uiElements[id];
                     if (!element) throw new Error(`UI element with ID '${id}' not found.`);
                     
-                    const callbackEngine = new TeaEngine(this.log, this.sandbox, this.showCoffeeSpill);
+                    // Pass the current TeaEngine's variables to the callback's engine for shared scope
+                    const callbackEngine = new TeaEngine(this.log, this.sandbox);
+                    callbackEngine.variables = this.variables; // Share variables
                     
                     element.addEventListener(event, () => {
                         this.log(`Event '${event}' triggered on '${id}'. Executing callback...`, 'info');
@@ -1543,9 +1465,11 @@
                 // Data.StoreValue(string key, string value);
                 match = commandLine.match(/^Data\.StoreValue\((.+),\s*(.+)\);?$/);
                 if (match) {
-                    const key = this._evaluateExpression(match[1]);
-                    const value = this._evaluateExpression(match[2]);
-                    simulatedSaveFile(String(key), String(value));
+                    const key = this._evaluateExpression(match[1]); // Evaluate key (can be a variable)
+                    const value = this._evaluateExpression(match[2]); // Evaluate value (can be a variable or literal)
+                    this.variables[String(key)] = value; // Store in in-memory variables
+                    simulatedSaveFile(String(key), String(value)); // Also save to persistent local DB
+                    this.log(`Stored value '${value}' to key '${key}'.`, 'info');
                     return;
                 }
 
@@ -1553,9 +1477,15 @@
                 match = commandLine.match(/^Data\.RetrieveValue\((.+)\);?$/);
                 if (match) {
                     const key = this._evaluateExpression(match[1]);
-                    const loadedValue = simulatedLoadFile(String(key));
-                    this.log(`Retrieved value for '${key}': ${loadedValue}`, 'info');
-                    return;
+                    const loadedValue = simulatedLoadFile(String(key)); // Load from persistent local DB
+                    if (loadedValue !== null) {
+                        this.variables[String(key)] = loadedValue; // Also store in in-memory variables
+                        this.log(`Retrieved value for '${key}': ${loadedValue}`, 'info');
+                        return loadedValue; // Return the value
+                    } else {
+                        this.log(`Key '${key}' not found in data storage.`, 'info');
+                        return null;
+                    }
                 }
 
                 // --- Arithmetic Commands ---
@@ -1694,27 +1624,44 @@
             }
 
             /**
-             * Basic expression evaluator for string literals and numbers.
-             * In a full Tea interpreter, this would be a more robust parser.
+             * Basic expression evaluator for string literals, numbers, and variable lookups.
              * @param {string} expr - The expression string.
              * @returns {*} The evaluated value.
              */
             _evaluateExpression(expr) {
                 expr = expr.trim();
-                // Handle string literals (e.g., "Hello World")
+
+                // 1. Handle variable lookups
+                // Check if it's a valid identifier (starts with letter/underscore, followed by alphanumeric/underscore)
+                if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(expr)) {
+                    if (this.variables.hasOwnProperty(expr)) {
+                        return this.variables[expr];
+                    } else {
+                        // If it's a variable but not found, treat it as a string literal for now
+                        // or throw an error if strict variable declaration is needed.
+                        // For this version, let's throw an error to indicate undefined variable.
+                        throw new Error(`Undefined variable: '${expr}'.`);
+                    }
+                }
+
+                // 2. Handle string literals (double quotes)
                 if (expr.startsWith('"') && expr.endsWith('"')) {
                     return expr.substring(1, expr.length - 1);
                 }
-                // Handle numbers
+                // 3. Handle string literals (single quotes)
+                if (expr.startsWith("'") && expr.endsWith("'")) {
+                    return expr.substring(1, expr.length - 1);
+                }
+
+                // 4. Handle numbers
                 if (!isNaN(Number(expr))) {
                     return Number(expr);
                 }
-                // Handle boolean literals
+                // 5. Handle boolean literals
                 if (expr === 'true') return true;
                 if (expr === 'false') return false;
 
-                // For now, only simple string/number/boolean literals are supported directly in expressions.
-                throw new Error(`Unsupported expression type or syntax for direct evaluation: '${expr}'.`);
+                throw new Error(`Unsupported expression type or syntax for evaluation: '${expr}'.`);
             }
         }
 
@@ -1726,7 +1673,7 @@
             editor.getWrapperElement().classList.add('hidden');
             dom.outputSandbox.classList.remove('hidden');
 
-            const teaEngine = new TeaEngine(logToTerminal, dom.outputSandbox, showCoffeeSpillAnimation);
+            const teaEngine = new TeaEngine(logToTerminal, dom.outputSandbox); // Removed showCoffeeSpillAnimation
             teaEngine.run(codeToRun);
             
             logToTerminal('--- Code Execution Finished ---', 'info');
@@ -1979,7 +1926,9 @@
                    "// UI.AttachEvent(\"myButton\", \"click\", \"Debug.Log(\\\"Button clicked!\\\");\");\n" +
                    "// Example: UI.DisplayStaticText(\"myTextDiv\", \"This is some static text.\");\n" +
                    "// Example: Debug.Log(Math.Add(5.0, 3.0));\n" +
-                   "// Example: Debug.Log(Math.SolveQuadratic(1.0, -3.0, 2.0));",
+                   "// Example: Debug.Log(Math.SolveQuadratic(1.0, -3.0, 2.0));\n" +
+                   "// Example: Data.StoreValue(\"myVar\", \"Hello Variable!\");\n" +
+                   "// Debug.Log(Data.RetrieveValue(\"myVar\"));", // Added example for Data.StoreValue and RetrieveValue
             mode: "javascript",
             theme: "dracula",
             lineNumbers: true,
